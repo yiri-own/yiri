@@ -1,0 +1,4875 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="一个极简的每日计划与重要事项倒计时。">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f4f1ea" id="metaThemeColor">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="一日">
+  <title>一日 · 今天</title>
+  <script>
+    (function () {
+      try {
+        var hour = new Date().getHours();
+        document.documentElement.dataset.theme = (hour >= 21 || hour < 6) ? 'dark' : 'light';
+      } catch (error) {
+        document.documentElement.dataset.theme = 'light';
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f1ea;
+      --surface: #fbf9f4;
+      --surface-raised: #fffdf8;
+      --fill: #f1ede4;
+      --ink: #20211d;
+      --muted: #79796f;
+      --muted-2: #a19f94;
+      --line: #e4ded1;
+      --line-strong: #cec6b7;
+      --accent: #bf5a39;
+      --accent-strong: #a94b2d;
+      --accent-ink: #fff7f0;
+      --accent-soft: rgba(191, 90, 57, 0.12);
+      --actual: #687a60;
+      --actual-soft: rgba(104, 122, 96, 0.12);
+      --info: #5d7690;
+      --info-soft: rgba(93, 118, 144, 0.12);
+      --danger: #b34936;
+      --glow: rgba(201, 150, 103, 0.12);
+      --shadow: 0 22px 55px -40px rgba(47, 43, 33, 0.45);
+      --shadow-float: 0 16px 38px -24px rgba(47, 43, 33, 0.32);
+      --summary-bg: rgba(251, 249, 244, 0.86);
+      --hero-bg: #1e211c;
+      --hero-ink: #f6f1e6;
+      --hero-muted: #a2a396;
+      --hero-line: rgba(246, 241, 230, 0.13);
+      --hero-accent: #e7b07e;
+      --hero-border: rgba(255, 255, 255, 0.05);
+      --hero-shadow: 0 24px 50px -32px rgba(20, 22, 18, 0.7);
+      --ring: rgba(191, 90, 57, 0.24);
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #10110f;
+      --surface: #171915;
+      --surface-raised: #1c1f1a;
+      --fill: #20231d;
+      --ink: #ece9df;
+      --muted: #939389;
+      --muted-2: #73756b;
+      --line: #2a2d26;
+      --line-strong: #3c4036;
+      --accent: #dd8a63;
+      --accent-strong: #e99a73;
+      --accent-ink: #251611;
+      --accent-soft: rgba(221, 138, 99, 0.13);
+      --actual: #9bad8e;
+      --actual-soft: rgba(155, 173, 142, 0.12);
+      --info: #9cb3ca;
+      --info-soft: rgba(156, 179, 202, 0.13);
+      --danger: #e08a77;
+      --glow: rgba(130, 156, 112, 0.07);
+      --shadow: 0 24px 60px -40px rgba(0, 0, 0, 0.8);
+      --shadow-float: 0 18px 44px -24px rgba(0, 0, 0, 0.75);
+      --summary-bg: rgba(23, 25, 21, 0.87);
+      --hero-bg: #191b17;
+      --hero-ink: #f1ede2;
+      --hero-muted: #919488;
+      --hero-line: #2d3028;
+      --hero-accent: #e5ae7d;
+      --hero-border: #30342b;
+      --hero-shadow: 0 24px 55px -32px rgba(0, 0, 0, 0.9);
+      --ring: rgba(221, 138, 99, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      min-height: 100dvh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 560px at 102% -8%, var(--glow) 0%, transparent 62%),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro SC", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.6s ease, color 0.6s ease;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      touch-action: manipulation;
+    }
+
+    ::selection {
+      color: var(--accent-ink);
+      background: var(--accent);
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 880px;
+      margin: 0 auto;
+      padding:
+        max(20px, env(safe-area-inset-top))
+        18px
+        calc(112px + env(safe-area-inset-bottom));
+    }
+
+    .masthead {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 19px;
+      padding: 1px 2px 0;
+      animation: rise-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+    }
+
+    .masthead__title {
+      margin: 0;
+      font-size: clamp(32px, 9vw, 40px);
+      font-weight: 620;
+      line-height: 1;
+      letter-spacing: -0.055em;
+    }
+
+    .masthead__dot {
+      display: inline-block;
+      margin-left: 2px;
+      color: var(--accent);
+    }
+
+    .masthead__aside {
+      display: grid;
+      justify-items: end;
+      gap: 4px;
+      padding-bottom: 3px;
+      text-align: right;
+    }
+
+    .clock {
+      color: var(--ink);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+      letter-spacing: 0.035em;
+      line-height: 1;
+    }
+
+    .period {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 9.5px;
+      letter-spacing: 0.1em;
+      line-height: 1;
+    }
+
+    .period__dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .utility-bar {
+      display: flex;
+      gap: 7px;
+      margin: -3px 2px 14px;
+      animation: rise-in 0.58s 0.02s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .utility-button {
+      display: inline-flex;
+      height: 29px;
+      align-items: center;
+      gap: 6px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 10.5px;
+      letter-spacing: 0.01em;
+      line-height: 1;
+      transition: color 0.18s ease, background-color 0.18s ease,
+        border-color 0.18s ease, transform 0.16s ease;
+    }
+
+    .utility-button svg {
+      width: 13px;
+      height: 13px;
+      flex: 0 0 13px;
+      pointer-events: none;
+    }
+
+    .utility-button:hover {
+      border-color: var(--line-strong);
+      background: var(--surface);
+      color: var(--ink);
+    }
+
+    .utility-button:active {
+      transform: scale(0.97);
+    }
+
+    .notice {
+      margin-bottom: 14px;
+      padding: 10px 12px;
+      border: 1px solid color-mix(in srgb, var(--danger) 26%, var(--line));
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+      color: var(--danger);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .countdown {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 14px;
+      padding: 18px 18px 16px;
+      border: 1px solid var(--hero-border);
+      border-radius: 23px;
+      background: var(--hero-bg);
+      box-shadow: var(--hero-shadow);
+      color: var(--hero-ink);
+      transition: background-color 0.6s ease, border-color 0.6s ease;
+      animation: rise-in 0.62s 0.04s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .countdown::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(105% 145% at 100% 0%, rgba(231, 176, 126, 0.14) 0%, transparent 51%),
+        radial-gradient(80% 100% at 0% 110%, rgba(104, 122, 96, 0.11) 0%, transparent 60%);
+    }
+
+    .countdown > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .countdown__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 28px;
+      margin-bottom: 13px;
+    }
+
+    .countdown__meta {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .countdown__exam-badge {
+      padding: 2px 7px;
+      border: 1px solid rgba(231, 176, 126, 0.3);
+      border-radius: 999px;
+      color: var(--hero-accent);
+      font-size: 8.5px;
+      letter-spacing: 0.08em;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+
+    .countdown__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--hero-muted);
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+    }
+
+    .countdown__tick {
+      width: 15px;
+      height: 1px;
+      background: var(--hero-accent);
+    }
+
+    .icon-button {
+      display: inline-grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.18s ease, background-color 0.18s ease,
+        border-color 0.18s ease, transform 0.18s ease;
+    }
+
+    .icon-button:hover {
+      border-color: var(--line-strong);
+      background: var(--fill);
+      color: var(--ink);
+    }
+
+    .icon-button:active {
+      transform: scale(0.95);
+    }
+
+    .countdown .icon-button {
+      width: 29px;
+      height: 29px;
+      border-color: var(--hero-line);
+      color: var(--hero-muted);
+    }
+
+    .countdown .icon-button:hover {
+      border-color: rgba(246, 241, 230, 0.28);
+      background: rgba(246, 241, 230, 0.07);
+      color: var(--hero-ink);
+    }
+
+    .event-empty {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 9px 0 10px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .event-empty__copy {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .event-empty__title {
+      color: var(--hero-ink);
+      font-size: clamp(19px, 5.6vw, 24px);
+      font-weight: 560;
+      letter-spacing: -0.025em;
+      line-height: 1.25;
+    }
+
+    .event-empty__hint {
+      color: var(--hero-muted);
+      font-size: 11.5px;
+      line-height: 1.6;
+    }
+
+    .event-empty__arrow {
+      display: grid;
+      flex: 0 0 36px;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 1px solid var(--hero-line);
+      border-radius: 50%;
+      color: var(--hero-accent);
+      font-size: 16px;
+      transition: transform 0.22s ease, background-color 0.22s ease;
+    }
+
+    .event-empty:hover .event-empty__arrow {
+      transform: translate(2px, -2px);
+      background: rgba(246, 241, 230, 0.06);
+    }
+
+    .event__title {
+      display: -webkit-box;
+      overflow: hidden;
+      margin: 0;
+      color: var(--hero-ink);
+      font-size: clamp(21px, 6vw, 30px);
+      font-weight: 580;
+      letter-spacing: -0.035em;
+      line-height: 1.28;
+      overflow-wrap: anywhere;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .countdown-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 17px;
+      padding: 14px 0 12px;
+      border-top: 1px solid var(--hero-line);
+      border-bottom: 1px solid var(--hero-line);
+    }
+
+    .unit {
+      position: relative;
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .unit + .unit::before {
+      content: "";
+      position: absolute;
+      top: 5px;
+      bottom: 5px;
+      left: 0;
+      width: 1px;
+      background: var(--hero-line);
+    }
+
+    .unit__value {
+      color: var(--hero-ink);
+      font-size: clamp(27px, 8.4vw, 40px);
+      font-variant-numeric: tabular-nums;
+      font-weight: 480;
+      letter-spacing: -0.06em;
+      line-height: 1;
+    }
+
+    .unit__value--compact {
+      font-size: clamp(19px, 6vw, 28px);
+      letter-spacing: -0.04em;
+      padding-top: 5px;
+    }
+
+    .unit__label {
+      color: var(--hero-muted);
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      line-height: 1;
+    }
+
+    .event-arrived {
+      padding: 26px 0 24px;
+      border-top: 1px solid var(--hero-line);
+      border-bottom: 1px solid var(--hero-line);
+      margin-top: 17px;
+    }
+
+    .event-arrived__title {
+      margin: 0;
+      color: var(--hero-ink);
+      font-size: clamp(28px, 8vw, 36px);
+      font-weight: 540;
+      letter-spacing: -0.045em;
+      line-height: 1.15;
+    }
+
+    .event-arrived__hint {
+      margin: 7px 0 0;
+      color: var(--hero-muted);
+      font-size: 11.5px;
+    }
+
+    .event__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      color: var(--hero-muted);
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .event__date {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .event__status {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.04em;
+    }
+
+    .status__dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--hero-accent);
+      animation: soft-pulse 2.8s ease-in-out infinite;
+    }
+
+    .countdown[data-state="expired"] .status__dot {
+      background: var(--hero-muted);
+      animation: none;
+    }
+
+    .nearest-reminder {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      gap: 11px;
+      margin: 0 0 14px;
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      color: var(--ink);
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.18s ease, background-color 0.18s ease,
+        transform 0.16s ease;
+    }
+
+    .nearest-reminder:hover {
+      border-color: var(--line-strong);
+      background: var(--surface-raised);
+    }
+
+    .nearest-reminder:active {
+      transform: scale(0.994);
+    }
+
+    .nearest-reminder__icon {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      flex: 0 0 30px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .nearest-reminder__icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .nearest-reminder__content {
+      display: grid;
+      min-width: 0;
+      flex: 1;
+      gap: 3px;
+    }
+
+    .nearest-reminder__meta {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.4;
+    }
+
+    .nearest-reminder__meta time {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .nearest-reminder__name {
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .nearest-reminder__arrow {
+      flex: 0 0 auto;
+      color: var(--muted-2);
+    }
+
+    .nearest-reminder__arrow svg {
+      width: 15px;
+      height: 15px;
+      display: block;
+    }
+
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 8.5px;
+      letter-spacing: 0.05em;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+
+    .type-badge--exam {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .type-badge--homework {
+      background: var(--info-soft);
+      color: var(--info);
+    }
+
+    .type-badge--registration {
+      background: var(--actual-soft);
+      color: var(--actual);
+    }
+
+    .type-badge--other {
+      background: var(--fill);
+      color: var(--muted);
+    }
+
+    .ledger {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      transition: background-color 0.6s ease, border-color 0.6s ease;
+      animation: rise-in 0.68s 0.09s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .column {
+      display: flex;
+      min-width: 0;
+      min-height: 235px;
+      flex-direction: column;
+      padding: 16px 14px 20px;
+    }
+
+    .column__rule {
+      background: var(--line);
+    }
+
+    .column__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 7px;
+      margin-bottom: 13px;
+    }
+
+    .column__heading {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .column__heading h2 {
+      overflow: hidden;
+      margin: 0;
+      color: var(--ink);
+      font-size: 13.5px;
+      font-weight: 620;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .column__dot {
+      width: 6px;
+      height: 6px;
+      flex: 0 0 6px;
+      border-radius: 50%;
+    }
+
+    .column__dot--plan {
+      background: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .column__dot--actual {
+      background: var(--actual);
+      box-shadow: 0 0 0 3px var(--actual-soft);
+    }
+
+    .column__ratio {
+      flex: 0 0 auto;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: var(--fill);
+      color: var(--muted);
+      font-size: 9.5px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.5;
+      transition: background-color 0.6s ease;
+    }
+
+    .quick-add {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      min-width: 0;
+      padding: 0 3px 0 8px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: var(--fill);
+      transition: background-color 0.18s ease, border-color 0.18s ease,
+        box-shadow 0.18s ease;
+    }
+
+    .quick-add:focus-within {
+      border-color: var(--line-strong);
+      background: var(--surface-raised);
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    .quick-add__input {
+      width: 100%;
+      min-width: 0;
+      height: 34px;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .quick-add__input::placeholder {
+      color: var(--muted-2);
+      opacity: 1;
+    }
+
+    .quick-add__button {
+      display: grid;
+      width: 25px;
+      height: 25px;
+      flex: 0 0 25px;
+      padding: 0;
+      place-items: center;
+      border: 0;
+      border-radius: 7px;
+      background: var(--ink);
+      color: var(--bg);
+      cursor: pointer;
+      transition: transform 0.16s ease, opacity 0.16s ease;
+    }
+
+    .quick-add__button:hover {
+      opacity: 0.84;
+    }
+
+    .quick-add__button:active {
+      transform: scale(0.92);
+    }
+
+    .quick-add__button svg {
+      width: 13px;
+      height: 13px;
+      pointer-events: none;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 1px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .task {
+      display: flex;
+      min-width: 0;
+      align-items: flex-start;
+      border-radius: 8px;
+    }
+
+    .task__label {
+      display: flex;
+      min-width: 0;
+      flex: 1;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 7px 0;
+      cursor: pointer;
+    }
+
+    .task__check {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .task__box {
+      display: grid;
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+      margin-top: 1px;
+      place-items: center;
+      border: 1.5px solid var(--line-strong);
+      border-radius: 5px;
+      background: transparent;
+      transition: background-color 0.18s ease, border-color 0.18s ease,
+        transform 0.18s ease;
+    }
+
+    .task__box svg {
+      width: 10px;
+      height: 10px;
+      color: var(--accent-ink);
+      opacity: 0;
+      transform: scale(0.55);
+      transition: opacity 0.16s ease, transform 0.18s ease;
+    }
+
+    .task__check:checked + .task__box {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .task__check:checked + .task__box svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .task__check:focus-visible + .task__box {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .task__label:active .task__box {
+      transform: scale(0.9);
+    }
+
+    .task__text {
+      min-width: 0;
+      padding-top: 0.5px;
+      color: var(--ink);
+      font-size: 13.5px;
+      line-height: 1.48;
+      overflow-wrap: anywhere;
+      transition: color 0.18s ease, opacity 0.18s ease;
+    }
+
+    .task--new {
+      animation: task-in 0.24s ease-out both;
+    }
+
+    .task.is-done .task__text {
+      color: var(--muted);
+      text-decoration: line-through;
+      text-decoration-color: var(--muted-2);
+      text-decoration-thickness: 1px;
+      opacity: 0.72;
+    }
+
+    .task__remove {
+      display: grid;
+      width: 21px;
+      height: 28px;
+      flex: 0 0 21px;
+      margin: 2px 0 0 2px;
+      padding: 0;
+      place-items: center;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted-2);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.18s ease, color 0.18s ease, background-color 0.18s ease;
+    }
+
+    .task__remove svg {
+      width: 11px;
+      height: 11px;
+      pointer-events: none;
+    }
+
+    .task__remove:hover,
+    .task__remove:focus-visible {
+      background: var(--fill);
+      color: var(--danger);
+      opacity: 1;
+    }
+
+    .task:hover .task__remove,
+    .task:focus-within .task__remove {
+      opacity: 0.48;
+    }
+
+    .column__empty {
+      margin: 17px 2px 0;
+      color: var(--muted-2);
+      font-size: 11.5px;
+      line-height: 1.7;
+    }
+
+    .reminder-app {
+      padding-bottom: calc(42px + env(safe-area-inset-bottom));
+      animation: rise-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .reminder-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 17px;
+      padding: 1px 2px 0;
+    }
+
+    .reminder-title {
+      margin: 0;
+      font-size: clamp(32px, 9vw, 40px);
+      font-weight: 620;
+      line-height: 1;
+      letter-spacing: -0.055em;
+    }
+
+    .reminder-title:focus {
+      outline: none;
+    }
+
+    .reminder-back {
+      height: 30px;
+      flex: 0 0 auto;
+      padding: 0 11px;
+      font-size: 10px;
+    }
+
+    .reminder-introbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 19px;
+      padding: 0 2px;
+    }
+
+    .reminder-introbar p {
+      max-width: 250px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.65;
+    }
+
+    .reminder-add {
+      display: inline-flex;
+      height: 34px;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 5px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 10px 20px -15px var(--accent);
+      color: var(--accent-ink);
+      cursor: pointer;
+      font-size: 11.5px;
+      font-weight: 600;
+      line-height: 1;
+      transition: background-color 0.18s ease, transform 0.16s ease;
+    }
+
+    .reminder-add:hover {
+      background: var(--accent-strong);
+    }
+
+    .reminder-add:active {
+      transform: scale(0.97);
+    }
+
+    .reminder-add svg {
+      width: 13px;
+      height: 13px;
+      pointer-events: none;
+    }
+
+    .reminder-empty-state {
+      padding: 40px 20px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 18px;
+      text-align: center;
+    }
+
+    .reminder-empty-state strong {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .reminder-empty-state span {
+      display: block;
+      max-width: 290px;
+      margin: 0 auto;
+      color: var(--muted-2);
+      font-size: 11.5px;
+      line-height: 1.7;
+    }
+
+    .reminder-groups {
+      display: grid;
+      gap: 22px;
+    }
+
+    .reminder-group__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 2px 8px;
+    }
+
+    .reminder-group__title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .reminder-group__title h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 620;
+      letter-spacing: 0.01em;
+      line-height: 1.35;
+    }
+
+    .reminder-group__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .reminder-group__dot--later {
+      background: var(--actual);
+      box-shadow: 0 0 0 3px var(--actual-soft);
+    }
+
+    .reminder-group__count {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--fill);
+      color: var(--muted);
+      font-size: 9px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.5;
+    }
+
+    .reminder-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .reminder-group__empty {
+      margin: 0;
+      padding: 15px 14px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      color: var(--muted-2);
+      font-size: 10.5px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .reminder-item {
+      display: grid;
+      gap: 8px;
+      padding: 13px 13px 11px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--surface);
+      transition: border-color 0.18s ease, background-color 0.6s ease;
+    }
+
+    .reminder-item.is-generated {
+      border-color: var(--line-strong);
+    }
+
+    .reminder-item__meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px 7px;
+    }
+
+    .reminder-when {
+      color: var(--muted);
+      font-size: 9.5px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.45;
+    }
+
+    .reminder-when.is-overdue {
+      color: var(--danger);
+    }
+
+    .reminder-status {
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 8.5px;
+      letter-spacing: 0.03em;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+
+    .reminder-status--done {
+      background: var(--actual-soft);
+      color: var(--actual);
+    }
+
+    .reminder-status--cancelled {
+      background: var(--fill);
+      color: var(--muted);
+    }
+
+    .reminder-source {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      color: var(--muted-2);
+      font-size: 8.5px;
+      line-height: 1.45;
+      white-space: nowrap;
+    }
+
+    .reminder-source svg {
+      width: 9px;
+      height: 9px;
+    }
+
+    .reminder-item__title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .reminder-item__note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .reminder-item.is-done .reminder-item__title,
+    .reminder-item.is-cancelled .reminder-item__title {
+      color: var(--muted);
+      text-decoration: line-through;
+      text-decoration-color: var(--muted-2);
+      text-decoration-thickness: 1px;
+    }
+
+    .reminder-item.is-cancelled .reminder-item__note,
+    .reminder-item.is-cancelled .reminder-when {
+      opacity: 0.7;
+    }
+
+    .reminder-item__foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+
+    .reminder-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .reminder-action {
+      display: inline-flex;
+      height: 26px;
+      align-items: center;
+      gap: 4px;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 9px;
+      line-height: 1;
+      transition: color 0.16s ease, background-color 0.16s ease,
+        border-color 0.16s ease;
+    }
+
+    .reminder-action svg {
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+    }
+
+    .reminder-action:hover {
+      border-color: var(--line-strong);
+      background: var(--fill);
+      color: var(--ink);
+    }
+
+    .reminder-action--done[aria-pressed="true"] {
+      border-color: var(--actual);
+      background: var(--actual);
+      color: var(--accent-ink);
+    }
+
+    .reminder-action--cancel[aria-pressed="true"] {
+      border-color: var(--line-strong);
+      background: var(--line);
+      color: var(--ink);
+    }
+
+    .reminder-edit {
+      height: 26px;
+      padding: 0 1px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 9.5px;
+      line-height: 1;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .reminder-edit:hover {
+      color: var(--ink);
+    }
+
+    .expired-group {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--surface);
+    }
+
+    .expired-group summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .expired-group summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .expired-group[open] summary {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .expired-group__title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .expired-group__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--line-strong);
+    }
+
+    .expired-group__meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .expired-group__count {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: var(--fill);
+      color: var(--muted);
+      font-size: 9px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.5;
+    }
+
+    .expired-group__chevron {
+      width: 14px;
+      height: 14px;
+      color: var(--muted-2);
+      transition: transform 0.2s ease;
+    }
+
+    .expired-group[open] .expired-group__chevron {
+      transform: rotate(180deg);
+    }
+
+    .expired-group__body {
+      padding: 10px;
+    }
+
+    body.view-reminders .toast {
+      bottom: calc(24px + env(safe-area-inset-bottom));
+    }
+
+    .exam-toggle {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 15px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--fill);
+      cursor: pointer;
+    }
+
+    .exam-toggle input {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 17px;
+      margin: 2px 0 0;
+      accent-color: var(--accent);
+    }
+
+    .exam-toggle__copy {
+      display: grid;
+      min-width: 0;
+      gap: 2px;
+    }
+
+    .exam-toggle__copy strong {
+      color: var(--ink);
+      font-size: 11.5px;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    .exam-toggle__copy small {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    .icon-button--danger:hover {
+      border-color: var(--danger);
+      background: var(--fill);
+      color: var(--danger);
+    }
+
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      outline: 0;
+      background: var(--fill);
+      color: var(--ink);
+      font-size: 16px;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease,
+        background-color 0.18s ease;
+    }
+
+    .field select {
+      height: 48px;
+      padding: 0 12px;
+    }
+
+    .field textarea {
+      min-height: 84px;
+      height: 92px;
+      padding: 11px 12px;
+      font-family: inherit;
+      line-height: 1.55;
+      resize: vertical;
+    }
+
+    .field textarea::placeholder {
+      color: var(--muted-2);
+      opacity: 1;
+    }
+
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--accent);
+      background: var(--surface);
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    .summary {
+      position: fixed;
+      z-index: 40;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      padding: 0 18px calc(12px + env(safe-area-inset-bottom));
+      pointer-events: none;
+    }
+
+    .summary__inner {
+      width: 100%;
+      max-width: 824px;
+      margin: 0 auto;
+      padding: 10px 13px 9px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--summary-bg);
+      box-shadow: var(--shadow-float);
+      pointer-events: auto;
+      -webkit-backdrop-filter: blur(18px) saturate(1.12);
+      backdrop-filter: blur(18px) saturate(1.12);
+      transition: background-color 0.6s ease, border-color 0.6s ease;
+    }
+
+    .summary__line {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .summary__line strong {
+      margin-left: 3px;
+      color: var(--ink);
+      font-size: 12.5px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 620;
+    }
+
+    .summary__percent {
+      flex: 0 0 auto;
+      color: var(--muted-2);
+      font-size: 9.5px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.04em;
+    }
+
+    .progress {
+      overflow: hidden;
+      height: 3px;
+      margin-top: 7px;
+      border-radius: 99px;
+      background: var(--line);
+    }
+
+    .progress__fill {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+      transition: width 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 0.6s ease;
+    }
+
+    body.dialog-open {
+      overflow: hidden;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 80;
+      bottom: calc(86px + env(safe-area-inset-bottom));
+      left: 50%;
+      max-width: calc(100% - 36px);
+      padding: 9px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--ink);
+      box-shadow: var(--shadow-float);
+      color: var(--bg);
+      font-size: 11.5px;
+      line-height: 1.35;
+      opacity: 0;
+      pointer-events: none;
+      text-align: center;
+      transform: translate(-50%, 8px);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .calendar-dialog {
+      width: min(calc(100% - 28px), 600px);
+      max-width: none;
+      max-height: calc(100dvh - 24px);
+      overflow: visible;
+      padding: 0;
+      border: 0;
+      border-radius: 26px;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .calendar-dialog::backdrop {
+      background: rgba(12, 13, 10, 0.48);
+      -webkit-backdrop-filter: blur(5px);
+      backdrop-filter: blur(5px);
+    }
+
+    .calendar-dialog:focus {
+      outline: none;
+    }
+
+    .calendar-dialog[open] {
+      animation: dialog-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .calendar-dialog[open]::backdrop {
+      animation: fade-in 0.22s ease both;
+    }
+
+    .calendar-sheet {
+      max-height: calc(100dvh - 24px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: var(--surface-raised);
+      box-shadow: 0 28px 80px -24px rgba(13, 14, 11, 0.45);
+      scrollbar-color: var(--line-strong) transparent;
+      scrollbar-width: thin;
+    }
+
+    .calendar-grab {
+      display: none;
+    }
+
+    .calendar-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 3px;
+    }
+
+    .calendar-head .eyebrow {
+      margin-bottom: 4px;
+      font-size: 9.5px;
+    }
+
+    .calendar-head h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 22px;
+      font-weight: 620;
+      letter-spacing: -0.035em;
+      line-height: 1.25;
+    }
+
+    .calendar-head .icon-button {
+      width: 30px;
+      height: 30px;
+      flex: 0 0 30px;
+    }
+
+    .calendar-monthbar {
+      display: flex;
+      max-width: 430px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 13px auto 8px;
+    }
+
+    .calendar-nav {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 32px;
+      padding: 0;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.18s ease, background-color 0.18s ease,
+        border-color 0.18s ease, transform 0.16s ease;
+    }
+
+    .calendar-nav svg {
+      width: 14px;
+      height: 14px;
+      pointer-events: none;
+    }
+
+    .calendar-nav:hover {
+      border-color: var(--line-strong);
+      background: var(--fill);
+      color: var(--ink);
+    }
+
+    .calendar-nav:active {
+      transform: scale(0.94);
+    }
+
+    .calendar-monthbox {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .calendar-month {
+      color: var(--ink);
+      font-size: 15px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+
+    .calendar-today {
+      height: 23px;
+      padding: 0 8px;
+      border: 0;
+      border-radius: 999px;
+      background: var(--fill);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 9.5px;
+      line-height: 1;
+      transition: background-color 0.18s ease, color 0.18s ease;
+    }
+
+    .calendar-today:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .calendar-frame {
+      max-width: 430px;
+      margin: 0 auto;
+    }
+
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 3px;
+      padding: 2px 1px 5px;
+    }
+
+    .calendar-weekdays span {
+      color: var(--muted-2);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 3px;
+    }
+
+    .calendar-day {
+      position: relative;
+      display: flex;
+      height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 12.5px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      transition: background-color 0.16s ease, color 0.16s ease,
+        border-color 0.16s ease;
+    }
+
+    .calendar-day:hover {
+      background: var(--fill);
+    }
+
+    .calendar-day.is-today {
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 620;
+    }
+
+    .calendar-day.is-selected {
+      border-color: var(--ink);
+      background: var(--ink);
+      color: var(--bg);
+      font-weight: 620;
+    }
+
+    .calendar-day.is-selected.is-today {
+      border-color: var(--accent);
+      box-shadow: inset 0 0 0 1px var(--accent);
+    }
+
+    .calendar-day__dots {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      display: flex;
+      height: 3px;
+      gap: 2px;
+      pointer-events: none;
+      transform: translateX(-50%);
+    }
+
+    .calendar-day__dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .calendar-day__dot--actual {
+      background: var(--actual);
+    }
+
+    .calendar-day.is-selected .calendar-day__dot {
+      background: var(--bg);
+      opacity: 0.75;
+    }
+
+    .calendar-day--blank {
+      height: 38px;
+    }
+
+    .calendar-legend {
+      display: flex;
+      max-width: 430px;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 11px;
+      margin: 7px auto 0;
+      color: var(--muted-2);
+      font-size: 9px;
+      line-height: 1.4;
+    }
+
+    .calendar-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .calendar-legend i {
+      display: block;
+      width: 3.5px;
+      height: 3.5px;
+      border-radius: 50%;
+    }
+
+    .legend-dot--plan {
+      background: var(--accent);
+    }
+
+    .legend-dot--actual {
+      background: var(--actual);
+    }
+
+    .day-detail {
+      max-width: 552px;
+      margin: 16px auto 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--fill);
+    }
+
+    .day-detail__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 11px;
+    }
+
+    .day-detail__date {
+      display: flex;
+      min-width: 0;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .day-detail__date p {
+      margin: 0;
+      color: var(--ink);
+      font-size: 13.5px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 620;
+      letter-spacing: -0.025em;
+      line-height: 1.35;
+    }
+
+    .day-detail__tag {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 8.5px;
+      letter-spacing: 0.06em;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+
+    .day-detail__summary {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 9px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+
+    .day-detail__columns {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .day-detail__divider {
+      background: var(--line);
+    }
+
+    .day-detail__col {
+      min-width: 0;
+    }
+
+    .day-detail__colhead {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 7px;
+    }
+
+    .day-detail__colhead h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 10.5px;
+      font-weight: 620;
+      letter-spacing: 0.01em;
+      line-height: 1.3;
+    }
+
+    .day-detail__dot {
+      width: 5px;
+      height: 5px;
+      flex: 0 0 5px;
+      border-radius: 50%;
+    }
+
+    .day-detail__dot--plan {
+      background: var(--accent);
+    }
+
+    .day-detail__dot--actual {
+      background: var(--actual);
+    }
+
+    .day-detail__ratio {
+      margin-left: auto;
+      color: var(--muted-2);
+      font-size: 8.5px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.3;
+    }
+
+    .read-list {
+      display: grid;
+      gap: 5px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .read-item {
+      display: flex;
+      min-width: 0;
+      align-items: flex-start;
+      gap: 7px;
+    }
+
+    .read-item__mark {
+      display: grid;
+      width: 14px;
+      height: 14px;
+      flex: 0 0 14px;
+      margin-top: 1px;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      color: var(--accent-ink);
+    }
+
+    .read-item__mark svg {
+      width: 8px;
+      height: 8px;
+      opacity: 0;
+    }
+
+    .read-item.is-done .read-item__mark {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .read-item.is-done .read-item__mark svg {
+      opacity: 1;
+    }
+
+    .read-item--actual.is-done .read-item__mark {
+      border-color: var(--actual);
+      background: var(--actual);
+      color: var(--surface-raised);
+    }
+
+    .read-item__text {
+      min-width: 0;
+      color: var(--ink);
+      font-size: 11.5px;
+      line-height: 1.48;
+      overflow-wrap: anywhere;
+    }
+
+    .read-item.is-done .read-item__text {
+      color: var(--muted);
+      text-decoration: line-through;
+      text-decoration-color: var(--muted-2);
+      text-decoration-thickness: 1px;
+      opacity: 0.72;
+    }
+
+    .read-empty {
+      margin: 5px 0 0;
+      color: var(--muted-2);
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .event-dialog {
+      width: min(calc(100% - 28px), 420px);
+      max-width: none;
+      max-height: calc(100dvh - 24px);
+      overflow: visible;
+      padding: 0;
+      border: 0;
+      border-radius: 24px;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .event-dialog::backdrop {
+      background: rgba(12, 13, 10, 0.48);
+      -webkit-backdrop-filter: blur(5px);
+      backdrop-filter: blur(5px);
+    }
+
+    .event-dialog[open] {
+      animation: dialog-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .event-dialog[open]::backdrop {
+      animation: fade-in 0.22s ease both;
+    }
+
+    .event-form {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--surface-raised);
+      box-shadow: 0 28px 80px -24px rgba(13, 14, 11, 0.45);
+    }
+
+    .event-form__grab {
+      display: none;
+    }
+
+    .event-form__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 19px;
+    }
+
+    .event-form__head h2 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 620;
+      letter-spacing: -0.03em;
+      line-height: 1.3;
+    }
+
+    .event-form .icon-button {
+      width: 30px;
+      height: 30px;
+    }
+
+    .reminder-form__head-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .field {
+      margin-top: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+    }
+
+    .field input {
+      width: 100%;
+      height: 48px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      outline: 0;
+      background: var(--fill);
+      color: var(--ink);
+      font-size: 16px;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease,
+        background-color 0.18s ease;
+    }
+
+    .field input::placeholder {
+      color: var(--muted-2);
+      opacity: 1;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+      background: var(--surface);
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    .field__hint {
+      margin: 7px 1px 0;
+      color: var(--muted-2);
+      font-size: 10.5px;
+      line-height: 1.5;
+    }
+
+    .form-error {
+      min-height: 19px;
+      margin: 10px 1px 0;
+      color: var(--danger);
+      font-size: 11.5px;
+      line-height: 1.5;
+    }
+
+    .event-form__actions {
+      display: grid;
+      grid-template-columns: 0.82fr 1.35fr;
+      gap: 9px;
+      margin-top: 6px;
+    }
+
+    .button {
+      height: 46px;
+      padding: 0 16px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 570;
+      letter-spacing: 0.01em;
+      transition: background-color 0.18s ease, border-color 0.18s ease,
+        transform 0.16s ease, opacity 0.18s ease;
+    }
+
+    .button:active {
+      transform: scale(0.985);
+    }
+
+    .button--ghost {
+      border-color: var(--line);
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .button--ghost:hover {
+      background: var(--fill);
+      color: var(--ink);
+    }
+
+    .button--primary {
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+
+    .button--primary:hover {
+      background: var(--accent-strong);
+    }
+
+    @keyframes rise-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes dialog-in {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes task-in {
+      from {
+        opacity: 0;
+        transform: translateY(-3px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes soft-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(231, 176, 126, 0.2); }
+      50% { box-shadow: 0 0 0 4px rgba(231, 176, 126, 0.04); }
+    }
+
+    @media (hover: none) {
+      .task__remove {
+        opacity: 0.4;
+      }
+    }
+
+    @media (min-width: 600px) {
+      .app {
+        padding:
+          max(36px, env(safe-area-inset-top))
+          28px
+          calc(124px + env(safe-area-inset-bottom));
+      }
+
+      .masthead {
+        margin-bottom: 24px;
+      }
+
+      .masthead__title {
+        font-size: 43px;
+      }
+
+      .eyebrow {
+        font-size: 11px;
+      }
+
+      .utility-bar {
+        gap: 8px;
+        margin: -4px 2px 17px;
+      }
+
+      .utility-button {
+        height: 31px;
+        padding: 0 11px;
+        font-size: 11px;
+      }
+
+      .countdown {
+        margin-bottom: 16px;
+        padding: 24px;
+        border-radius: 26px;
+      }
+
+      .countdown__top {
+        margin-bottom: 17px;
+      }
+
+      .event-empty {
+        padding: 11px 0 14px;
+      }
+
+      .event-empty__title {
+        font-size: 25px;
+      }
+
+      .event-empty__hint {
+        font-size: 12px;
+      }
+
+      .event__title {
+        font-size: 30px;
+      }
+
+      .countdown-grid {
+        margin-top: 21px;
+        padding: 18px 0 16px;
+      }
+
+      .unit__value {
+        font-size: 44px;
+      }
+
+      .unit__value--compact {
+        font-size: 31px;
+        padding-top: 6px;
+      }
+
+      .unit__label {
+        font-size: 9.5px;
+      }
+
+      .event__footer {
+        margin-top: 14px;
+        font-size: 10.5px;
+      }
+
+      .nearest-reminder {
+        margin-bottom: 16px;
+        padding: 12px 15px;
+        border-radius: 16px;
+      }
+
+      .nearest-reminder__name {
+        font-size: 13px;
+      }
+
+      .reminder-app {
+        padding-bottom: calc(56px + env(safe-area-inset-bottom));
+      }
+
+      .reminder-head {
+        margin-bottom: 21px;
+        padding-right: 0;
+        padding-left: 0;
+      }
+
+      .reminder-title {
+        font-size: 43px;
+      }
+
+      .reminder-introbar {
+        margin-bottom: 23px;
+        padding-right: 0;
+        padding-left: 0;
+      }
+
+      .reminder-introbar p {
+        max-width: 310px;
+        font-size: 12px;
+      }
+
+      .reminder-add {
+        height: 36px;
+        padding: 0 14px;
+        font-size: 12px;
+      }
+
+      .reminder-item {
+        padding: 15px 16px 13px;
+      }
+
+      .reminder-item__title {
+        font-size: 14.5px;
+      }
+
+      .reminder-item__note {
+        font-size: 12px;
+      }
+
+      .reminder-action {
+        height: 27px;
+        padding: 0 9px;
+        font-size: 9.5px;
+      }
+
+      .column {
+        min-height: 265px;
+        padding: 20px 20px 24px;
+      }
+
+      .column__heading h2 {
+        font-size: 14.5px;
+      }
+
+      .column__ratio {
+        font-size: 10px;
+      }
+
+      .quick-add {
+        padding-left: 10px;
+      }
+
+      .quick-add__input {
+        height: 36px;
+        font-size: 14px;
+      }
+
+      .quick-add__button {
+        width: 27px;
+        height: 27px;
+        flex-basis: 27px;
+      }
+
+      .task__label {
+        gap: 9px;
+        padding: 8px 0;
+      }
+
+      .task__text {
+        font-size: 14px;
+      }
+
+      .column__empty {
+        font-size: 12px;
+      }
+
+      .summary {
+        padding-right: 28px;
+        padding-left: 28px;
+        padding-bottom: calc(15px + env(safe-area-inset-bottom));
+      }
+
+      .summary__inner {
+        padding: 11px 15px 10px;
+        border-radius: 16px;
+      }
+
+      .summary__line {
+        font-size: 12.5px;
+      }
+
+      .event-dialog {
+        border-radius: 26px;
+      }
+
+      .event-form {
+        padding: 26px;
+        border-radius: 26px;
+      }
+
+      .calendar-sheet {
+        padding: 26px;
+      }
+
+      .calendar-head h2 {
+        font-size: 24px;
+      }
+
+      .calendar-monthbar {
+        margin-top: 15px;
+      }
+
+      .calendar-day,
+      .calendar-day--blank {
+        height: 40px;
+      }
+
+      .day-detail {
+        padding: 16px;
+      }
+
+      .day-detail__date p {
+        font-size: 14.5px;
+      }
+
+      .read-item__text {
+        font-size: 12.5px;
+      }
+    }
+
+    @media (max-width: 599px) {
+      .event-dialog {
+        width: 100%;
+        margin: auto 0 0;
+        border-radius: 24px 24px 0 0;
+      }
+
+      .event-dialog[open] {
+        animation: sheet-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .event-form {
+        padding:
+          10px
+          20px
+          calc(20px + env(safe-area-inset-bottom));
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius: 24px 24px 0 0;
+      }
+
+      .event-form__grab {
+        display: block;
+        width: 36px;
+        height: 4px;
+        margin: 0 auto 13px;
+        border-radius: 99px;
+        background: var(--line-strong);
+      }
+
+      .event-form__head {
+        margin-bottom: 14px;
+      }
+
+      .event-form__head h2 {
+        font-size: 19px;
+      }
+
+      .calendar-dialog {
+        width: 100%;
+        max-height: none;
+        margin: auto 0 0;
+        border-radius: 24px 24px 0 0;
+      }
+
+      .calendar-dialog[open] {
+        animation: sheet-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+
+      .calendar-sheet {
+        max-height: calc(100dvh - 12px);
+        padding:
+          10px
+          18px
+          calc(20px + env(safe-area-inset-bottom));
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius: 24px 24px 0 0;
+      }
+
+      .calendar-grab {
+        display: block;
+        width: 36px;
+        height: 4px;
+        margin: 0 auto 12px;
+        border-radius: 99px;
+        background: var(--line-strong);
+      }
+
+      .calendar-head {
+        margin-bottom: 0;
+      }
+
+      .calendar-head h2 {
+        font-size: 20px;
+      }
+
+      .calendar-monthbar {
+        margin-top: 10px;
+      }
+
+      .reminder-app {
+        padding-top: max(20px, env(safe-area-inset-top));
+      }
+
+      .reminder-head {
+        margin-bottom: 14px;
+      }
+
+      .reminder-introbar {
+        margin-bottom: 16px;
+      }
+
+      .reminder-groups {
+        gap: 19px;
+      }
+    }
+
+    @keyframes sheet-in {
+      from {
+        opacity: 0;
+        transform: translateY(46px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 359px) {
+      .app {
+        padding-right: 14px;
+        padding-left: 14px;
+      }
+
+      .countdown {
+        padding: 16px 14px 14px;
+      }
+
+      .column {
+        padding-right: 10px;
+        padding-left: 10px;
+      }
+
+      .column__heading h2 {
+        font-size: 12.5px;
+      }
+
+      .column__heading {
+        gap: 5px;
+      }
+
+      .quick-add {
+        padding-left: 7px;
+      }
+
+      .task__label {
+        gap: 6px;
+      }
+
+      .task__text {
+        font-size: 12.5px;
+      }
+
+      .summary {
+        padding-right: 14px;
+        padding-left: 14px;
+      }
+
+      .utility-bar {
+        gap: 5px;
+        margin-right: 0;
+        margin-left: 0;
+      }
+
+      .utility-button {
+        height: 28px;
+        padding: 0 8px;
+        font-size: 9.5px;
+      }
+
+      .utility-button svg {
+        width: 12px;
+        height: 12px;
+        flex-basis: 12px;
+      }
+
+      .calendar-sheet {
+        padding-right: 14px;
+        padding-left: 14px;
+      }
+
+      .calendar-day,
+      .calendar-day--blank {
+        height: 36px;
+      }
+
+      .calendar-day {
+        font-size: 11.5px;
+      }
+
+      .calendar-legend {
+        gap: 9px;
+      }
+
+      .day-detail {
+        padding: 12px;
+      }
+
+      .day-detail__summary {
+        display: none;
+      }
+
+      .day-detail__columns {
+        gap: 9px;
+      }
+
+      .read-item__text {
+        font-size: 11px;
+      }
+
+      .reminder-introbar {
+        gap: 9px;
+      }
+
+      .reminder-introbar p {
+        font-size: 10.5px;
+      }
+
+      .reminder-add {
+        height: 32px;
+        padding: 0 10px;
+        font-size: 10.5px;
+      }
+
+      .reminder-item {
+        padding: 12px 11px 10px;
+      }
+
+      .reminder-item__title {
+        font-size: 13px;
+      }
+
+      .reminder-action {
+        padding: 0 7px;
+      }
+
+      .reminder-edit {
+        font-size: 9px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="todayPage">
+    <header class="masthead">
+      <div class="masthead__main">
+        <p class="eyebrow" id="dateLine">今天</p>
+        <h1 class="masthead__title">今天<span class="masthead__dot" aria-hidden="true">.</span></h1>
+      </div>
+      <div class="masthead__aside">
+        <time class="clock" id="liveClock">00:00</time>
+        <span class="period" id="periodLabel" title="21:00 至次日 06:00 自动切换夜间模式">
+          <span class="period__dot" aria-hidden="true"></span>
+          <span id="periodText">日间</span>
+        </span>
+      </div>
+    </header>
+
+    <nav class="utility-bar" aria-label="工具">
+      <button class="utility-button" id="openReminders" type="button" title="打开重要事项提醒表">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 3.5h12a2 2 0 0 1 2 2V20H4V5.5a2 2 0 0 1 2-2Z"></path>
+          <path d="M8 8h8M8 12h8M8 16h5"></path>
+        </svg>
+        <span>提醒表</span>
+      </button>
+      <button class="utility-button" id="openCalendar" type="button" title="查看历史记录（只读）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3.5" y="5" width="17" height="15.5" rx="3"></rect>
+          <path d="M8 3.5V7M16 3.5V7M3.5 10h17"></path>
+        </svg>
+        <span>日历</span>
+      </button>
+      <button class="utility-button" id="exportData" type="button" title="下载全部数据 JSON 文件">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3.5v11M7.5 10l4.5 4.5 4.5-4.5M4 17.5v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"></path>
+        </svg>
+        <span>导出全部数据</span>
+      </button>
+    </nav>
+
+    <div class="notice" id="storageNotice" role="alert" hidden>
+      浏览器已限制本地保存，刷新后本次修改可能丢失。
+    </div>
+
+    <section class="countdown" id="countdownCard" data-state="empty" aria-label="重要事项倒计时">
+      <div class="countdown__top">
+        <div class="countdown__meta">
+          <span class="countdown__eyebrow"><span class="countdown__tick" aria-hidden="true"></span>重要事项</span>
+          <span class="countdown__exam-badge" id="eventExamBadge" hidden>考试</span>
+        </div>
+        <button class="icon-button" id="editEvent" type="button" aria-label="编辑重要事项" hidden>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 20h4L19 9l-4-4L4 16v4Z"></path>
+            <path d="m14.5 6.5 3 3"></path>
+          </svg>
+        </button>
+      </div>
+
+      <button class="event-empty" id="createEvent" type="button">
+        <span class="event-empty__copy">
+          <span class="event-empty__title">设置一个重要事项</span>
+          <span class="event-empty__hint">把期待，放在每天都看得见的地方。</span>
+        </span>
+        <span class="event-empty__arrow" aria-hidden="true">↗</span>
+      </button>
+
+      <div class="event" id="eventActive" hidden>
+        <h2 class="event__title" id="eventTitle"></h2>
+        <div id="countdownLive">
+          <div class="countdown-grid" id="countdownGrid" role="timer" aria-live="off">
+            <div class="unit">
+              <span class="unit__value" id="cdDays">00</span>
+              <span class="unit__label">天</span>
+            </div>
+            <div class="unit">
+              <span class="unit__value" id="cdHours">00</span>
+              <span class="unit__label">时</span>
+            </div>
+            <div class="unit">
+              <span class="unit__value" id="cdMinutes">00</span>
+              <span class="unit__label">分</span>
+            </div>
+            <div class="unit">
+              <span class="unit__value" id="cdSeconds">00</span>
+              <span class="unit__label">秒</span>
+            </div>
+          </div>
+        </div>
+        <div class="event-arrived" id="eventArrived" hidden>
+          <p class="event-arrived__title">时间已到<span aria-hidden="true">。</span></p>
+          <p class="event-arrived__hint">这一天，已经到来。</p>
+        </div>
+        <div class="event__footer">
+          <span class="event__date" id="eventDate"></span>
+          <span class="event__status" aria-live="polite">
+            <span class="status__dot" aria-hidden="true"></span>
+            <span id="eventStatusText">倒计时中</span>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <button class="nearest-reminder" id="nearestReminder" type="button" hidden>
+      <span class="nearest-reminder__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8.5a6 6 0 1 0-12 0c0 5-2 6.5-2 6.5h16s-2-1.5-2-6.5Z"></path>
+          <path d="M10 19h4"></path>
+        </svg>
+      </span>
+      <span class="nearest-reminder__content">
+        <span class="nearest-reminder__meta">
+          <span>最近事项</span>
+          <span class="type-badge" id="nearestTypeBadge">考试</span>
+          <time id="nearestDate"></time>
+        </span>
+        <span class="nearest-reminder__name" id="nearestName"></span>
+      </span>
+      <span class="nearest-reminder__arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"></path>
+        </svg>
+      </span>
+    </button>
+
+    <section class="ledger" aria-label="今日计划与实际">
+      <article class="column" aria-labelledby="planHeading">
+        <div class="column__header">
+          <div class="column__heading">
+            <span class="column__dot column__dot--plan" aria-hidden="true"></span>
+            <h2 id="planHeading">今日计划</h2>
+          </div>
+          <span class="column__ratio" id="planRatio">0/0</span>
+        </div>
+        <form class="quick-add" id="planForm" novalidate>
+          <label class="sr-only" for="planInput">添加今日计划</label>
+          <input class="quick-add__input" id="planInput" type="text" placeholder="添加计划" maxlength="120" autocomplete="off" enterkeyhint="done">
+          <button class="quick-add__button" type="submit" aria-label="添加计划">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+          </button>
+        </form>
+        <ul class="task-list" id="planList" aria-label="今日计划列表"></ul>
+        <p class="column__empty" id="planEmpty">从一件小事开始。</p>
+      </article>
+
+      <div class="column__rule" aria-hidden="true"></div>
+
+      <article class="column" aria-labelledby="actualHeading">
+        <div class="column__header">
+          <div class="column__heading">
+            <span class="column__dot column__dot--actual" aria-hidden="true"></span>
+            <h2 id="actualHeading">今日实际</h2>
+          </div>
+          <span class="column__ratio" id="actualRatio">0/0</span>
+        </div>
+        <form class="quick-add" id="actualForm" novalidate>
+          <label class="sr-only" for="actualInput">添加今日实际</label>
+          <input class="quick-add__input" id="actualInput" type="text" placeholder="记录实际" maxlength="120" autocomplete="off" enterkeyhint="done">
+          <button class="quick-add__button" type="submit" aria-label="添加实际记录">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+          </button>
+        </form>
+        <ul class="task-list" id="actualList" aria-label="今日实际列表"></ul>
+        <p class="column__empty" id="actualEmpty">记录已经发生的。</p>
+      </article>
+    </section>
+  </div>
+
+  <div class="reminder-page" id="reminderPage" hidden>
+    <div class="app reminder-app">
+      <header class="reminder-head">
+        <div>
+          <p class="eyebrow">重要事项</p>
+          <h1 class="reminder-title" id="reminderTitle" tabindex="-1">提醒表<span class="masthead__dot" aria-hidden="true">.</span></h1>
+        </div>
+        <button class="utility-button reminder-back" id="backToday" type="button">← 今天</button>
+      </header>
+
+      <div class="reminder-introbar">
+        <p>考试、作业、报名，按日期排好，别让重要的事悄悄过期。</p>
+        <button class="reminder-add" id="addReminder" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+          <span>添加事项</span>
+        </button>
+      </div>
+
+      <div class="reminder-empty-state" id="reminderEmptyState" hidden>
+        <strong>还没有重要事项</strong>
+        <span>点上方「添加事项」，把考试、作业和报名放进来。它们会按日期排好，过期的自动收起。</span>
+      </div>
+
+      <div class="reminder-groups" id="reminderGroups">
+        <section class="reminder-group" aria-labelledby="within7Title">
+          <header class="reminder-group__head">
+            <div class="reminder-group__title">
+              <span class="reminder-group__dot" aria-hidden="true"></span>
+              <h2 id="within7Title">7 天内</h2>
+            </div>
+            <span class="reminder-group__count" id="within7Count">0</span>
+          </header>
+          <div class="reminder-list" id="within7List"></div>
+          <p class="reminder-group__empty" id="within7Empty">这 7 天暂无事项。</p>
+        </section>
+
+        <section class="reminder-group" aria-labelledby="laterTitle">
+          <header class="reminder-group__head">
+            <div class="reminder-group__title">
+              <span class="reminder-group__dot reminder-group__dot--later" aria-hidden="true"></span>
+              <h2 id="laterTitle">之后</h2>
+            </div>
+            <span class="reminder-group__count" id="laterCount">0</span>
+          </header>
+          <div class="reminder-list" id="laterList"></div>
+          <p class="reminder-group__empty" id="laterEmpty">之后暂无事项。</p>
+        </section>
+
+        <details class="expired-group" id="expiredGroup" hidden>
+          <summary>
+            <span class="expired-group__title">
+              <span class="expired-group__dot" aria-hidden="true"></span>
+              已过期
+            </span>
+            <span class="expired-group__meta">
+              <span class="expired-group__count" id="expiredCount">0</span>
+              <svg class="expired-group__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+            </span>
+          </summary>
+          <div class="expired-group__body">
+            <div class="reminder-list" id="expiredList"></div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <footer class="summary" id="summaryFooter" aria-label="今日计划完成情况">
+    <div class="summary__inner">
+      <div class="summary__line">
+        <span id="summaryText" aria-live="polite">今日计划完成 <strong id="summaryFraction">0/0</strong></span>
+        <span class="summary__percent" id="summaryPercent">0%</span>
+      </div>
+      <div class="progress" id="summaryProgress" role="progressbar" aria-label="今日计划完成进度" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0">
+        <span class="progress__fill" id="summaryBar"></span>
+      </div>
+    </div>
+  </footer>
+
+  <dialog class="event-dialog" id="eventDialog" aria-labelledby="dialogTitle">
+    <form class="event-form" id="eventForm" novalidate>
+      <div class="event-form__grab" aria-hidden="true"></div>
+      <div class="event-form__head">
+        <h2 id="dialogTitle">重要事项</h2>
+        <button class="icon-button" id="closeDialog" type="button" aria-label="关闭">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="field">
+        <label for="eventNameInput">事件名称</label>
+        <input id="eventNameInput" type="text" maxlength="40" placeholder="例如：考试、旅行、项目上线" autocomplete="off" enterkeyhint="next">
+      </div>
+
+      <div class="field">
+        <label for="eventDateInput">目标日期与时间</label>
+        <input id="eventDateInput" type="datetime-local" step="60">
+        <p class="field__hint">按设备本地时间计算，可精确到分钟。</p>
+      </div>
+
+      <label class="exam-toggle" for="eventExamInput">
+        <input id="eventExamInput" type="checkbox">
+        <span class="exam-toggle__copy">
+          <strong>这是考试</strong>
+          <small>自动在提醒表中生成一条内容只读的考试事项。</small>
+        </span>
+      </label>
+
+      <p class="form-error" id="formError" role="alert"></p>
+
+      <div class="event-form__actions">
+        <button class="button button--ghost" id="cancelDialog" type="button">取消</button>
+        <button class="button button--primary" type="submit">保存倒计时</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="event-dialog" id="reminderDialog" aria-labelledby="reminderDialogTitle">
+    <form class="event-form reminder-form" id="reminderForm" novalidate>
+      <div class="event-form__grab" aria-hidden="true"></div>
+      <div class="event-form__head">
+        <h2 id="reminderDialogTitle">添加事项</h2>
+        <div class="reminder-form__head-actions">
+          <button class="icon-button icon-button--danger" id="deleteReminder" type="button" aria-label="删除事项" hidden>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 7h16M9 7V4h6v3M6.5 7l.7 13h9.6l.7-13M10 11v5M14 11v5"></path>
+            </svg>
+          </button>
+          <button class="icon-button" id="closeReminder" type="button" aria-label="关闭">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+              <path d="m6 6 12 12M18 6 6 18"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="reminderNameInput">事项名称</label>
+        <input id="reminderNameInput" type="text" maxlength="80" placeholder="例如：高等数学期末考试" autocomplete="off" enterkeyhint="next">
+      </div>
+
+      <div class="field">
+        <label for="reminderDateInput">日期</label>
+        <input id="reminderDateInput" type="date">
+      </div>
+
+      <div class="field">
+        <label for="reminderTypeInput">类型</label>
+        <select id="reminderTypeInput">
+          <option value="exam">考试</option>
+          <option value="homework">作业</option>
+          <option value="registration">报名</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="reminderNoteInput">备注</label>
+        <textarea id="reminderNoteInput" maxlength="300" placeholder="可选，例如考场、材料、链接…"></textarea>
+      </div>
+
+      <p class="form-error" id="reminderFormError" role="alert"></p>
+
+      <div class="event-form__actions">
+        <button class="button button--ghost" id="cancelReminder" type="button">取消</button>
+        <button class="button button--primary" type="submit">保存事项</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="calendar-dialog" id="calendarDialog" tabindex="-1" aria-labelledby="calendarDialogTitle">
+    <div class="calendar-sheet">
+      <div class="calendar-grab" aria-hidden="true"></div>
+
+      <header class="calendar-head">
+        <div>
+          <p class="eyebrow">只读回顾</p>
+          <h2 id="calendarDialogTitle">日历</h2>
+        </div>
+        <button class="icon-button" id="closeCalendar" type="button" aria-label="关闭日历">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18"></path>
+          </svg>
+        </button>
+      </header>
+
+      <div class="calendar-monthbar">
+        <button class="calendar-nav" id="prevMonth" type="button" aria-label="上个月">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m14.5 18-6-6 6-6"></path>
+          </svg>
+        </button>
+        <div class="calendar-monthbox">
+          <span class="calendar-month" id="calendarMonth" aria-live="polite">2026年11月</span>
+          <button class="calendar-today" id="calendarToday" type="button">今天</button>
+        </div>
+        <button class="calendar-nav" id="nextMonth" type="button" aria-label="下个月">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9.5 18 6-6-6-6"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="calendar-frame">
+        <div class="calendar-weekdays" aria-hidden="true">
+          <span>一</span>
+          <span>二</span>
+          <span>三</span>
+          <span>四</span>
+          <span>五</span>
+          <span>六</span>
+          <span>日</span>
+        </div>
+        <div class="calendar-grid" id="calendarGrid" role="group" aria-label="选择日期"></div>
+        <div class="calendar-legend" aria-hidden="true">
+          <span><i class="legend-dot--plan"></i>计划</span>
+          <span><i class="legend-dot--actual"></i>实际</span>
+        </div>
+      </div>
+
+      <section class="day-detail" aria-labelledby="selectedDateLabel">
+        <header class="day-detail__head">
+          <div class="day-detail__date">
+            <p id="selectedDateLabel">11月11日 · 周三</p>
+            <span class="day-detail__tag" id="selectedDateTag" hidden>今天</span>
+          </div>
+          <span class="day-detail__summary" id="selectedSummary">计划 0/0 · 实际 0/0</span>
+        </header>
+
+        <div class="day-detail__columns">
+          <div class="day-detail__col">
+            <div class="day-detail__colhead">
+              <span class="day-detail__dot day-detail__dot--plan" aria-hidden="true"></span>
+              <h3>计划</h3>
+              <span class="day-detail__ratio" id="selectedPlanRatio">0/0</span>
+            </div>
+            <ul class="read-list" id="selectedPlanList" aria-label="当日计划"></ul>
+            <p class="read-empty" id="selectedPlanEmpty">没有计划</p>
+          </div>
+
+          <div class="day-detail__divider" aria-hidden="true"></div>
+
+          <div class="day-detail__col">
+            <div class="day-detail__colhead">
+              <span class="day-detail__dot day-detail__dot--actual" aria-hidden="true"></span>
+              <h3>实际</h3>
+              <span class="day-detail__ratio" id="selectedActualRatio">0/0</span>
+            </div>
+            <ul class="read-list" id="selectedActualList" aria-label="当日实际"></ul>
+            <p class="read-empty" id="selectedActualEmpty">没有实际记录</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var EVENT_KEY = 'yiri.event.v1';
+      var DAY_PREFIX = 'yiri.day.v1.';
+      var REMINDERS_KEY = 'yiri.reminders.v1';
+      var CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4.2 4.2L19 6.5"></path></svg>';
+      var REMOVE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>';
+      var DONE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4.2 4.2L19 6.5"></path></svg>';
+      var CANCEL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>';
+      var LOCK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10"></path></svg>';
+      var WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+      var TYPE_META = {
+        exam: { label: '考试', className: 'type-badge--exam' },
+        homework: { label: '作业', className: 'type-badge--homework' },
+        registration: { label: '报名', className: 'type-badge--registration' },
+        other: { label: '其他', className: 'type-badge--other' }
+      };
+      var REMINDER_STATUSES = ['pending', 'done', 'cancelled'];
+      var REMINDER_SOURCES = ['manual', 'countdown'];
+
+      var els = {
+        dateLine: document.getElementById('dateLine'),
+        liveClock: document.getElementById('liveClock'),
+        periodLabel: document.getElementById('periodLabel'),
+        periodText: document.getElementById('periodText'),
+        metaThemeColor: document.getElementById('metaThemeColor'),
+        storageNotice: document.getElementById('storageNotice'),
+        countdownCard: document.getElementById('countdownCard'),
+        createEvent: document.getElementById('createEvent'),
+        editEvent: document.getElementById('editEvent'),
+        eventActive: document.getElementById('eventActive'),
+        eventTitle: document.getElementById('eventTitle'),
+        countdownLive: document.getElementById('countdownLive'),
+        countdownGrid: document.getElementById('countdownGrid'),
+        eventArrived: document.getElementById('eventArrived'),
+        eventDate: document.getElementById('eventDate'),
+        eventStatusText: document.getElementById('eventStatusText'),
+        cdDays: document.getElementById('cdDays'),
+        cdHours: document.getElementById('cdHours'),
+        cdMinutes: document.getElementById('cdMinutes'),
+        cdSeconds: document.getElementById('cdSeconds'),
+        planForm: document.getElementById('planForm'),
+        planInput: document.getElementById('planInput'),
+        planList: document.getElementById('planList'),
+        planEmpty: document.getElementById('planEmpty'),
+        planRatio: document.getElementById('planRatio'),
+        actualForm: document.getElementById('actualForm'),
+        actualInput: document.getElementById('actualInput'),
+        actualList: document.getElementById('actualList'),
+        actualEmpty: document.getElementById('actualEmpty'),
+        actualRatio: document.getElementById('actualRatio'),
+        summaryFraction: document.getElementById('summaryFraction'),
+        summaryPercent: document.getElementById('summaryPercent'),
+        summaryProgress: document.getElementById('summaryProgress'),
+        summaryBar: document.getElementById('summaryBar'),
+        eventDialog: document.getElementById('eventDialog'),
+        eventForm: document.getElementById('eventForm'),
+        eventNameInput: document.getElementById('eventNameInput'),
+        eventDateInput: document.getElementById('eventDateInput'),
+        formError: document.getElementById('formError'),
+        closeDialog: document.getElementById('closeDialog'),
+        cancelDialog: document.getElementById('cancelDialog'),
+        openCalendar: document.getElementById('openCalendar'),
+        exportData: document.getElementById('exportData'),
+        toast: document.getElementById('toast'),
+        calendarDialog: document.getElementById('calendarDialog'),
+        closeCalendar: document.getElementById('closeCalendar'),
+        prevMonth: document.getElementById('prevMonth'),
+        nextMonth: document.getElementById('nextMonth'),
+        calendarToday: document.getElementById('calendarToday'),
+        calendarMonth: document.getElementById('calendarMonth'),
+        calendarGrid: document.getElementById('calendarGrid'),
+        selectedDateLabel: document.getElementById('selectedDateLabel'),
+        selectedDateTag: document.getElementById('selectedDateTag'),
+        selectedSummary: document.getElementById('selectedSummary'),
+        selectedPlanList: document.getElementById('selectedPlanList'),
+        selectedPlanEmpty: document.getElementById('selectedPlanEmpty'),
+        selectedPlanRatio: document.getElementById('selectedPlanRatio'),
+        selectedActualList: document.getElementById('selectedActualList'),
+        selectedActualEmpty: document.getElementById('selectedActualEmpty'),
+        selectedActualRatio: document.getElementById('selectedActualRatio'),
+        todayPage: document.getElementById('todayPage'),
+        summaryFooter: document.getElementById('summaryFooter'),
+        openReminders: document.getElementById('openReminders'),
+        nearestReminder: document.getElementById('nearestReminder'),
+        nearestTypeBadge: document.getElementById('nearestTypeBadge'),
+        nearestDate: document.getElementById('nearestDate'),
+        nearestName: document.getElementById('nearestName'),
+        eventExamBadge: document.getElementById('eventExamBadge'),
+        eventExamInput: document.getElementById('eventExamInput'),
+        reminderPage: document.getElementById('reminderPage'),
+        reminderTitle: document.getElementById('reminderTitle'),
+        backToday: document.getElementById('backToday'),
+        addReminder: document.getElementById('addReminder'),
+        reminderEmptyState: document.getElementById('reminderEmptyState'),
+        reminderGroups: document.getElementById('reminderGroups'),
+        within7List: document.getElementById('within7List'),
+        within7Count: document.getElementById('within7Count'),
+        within7Empty: document.getElementById('within7Empty'),
+        laterList: document.getElementById('laterList'),
+        laterCount: document.getElementById('laterCount'),
+        laterEmpty: document.getElementById('laterEmpty'),
+        expiredGroup: document.getElementById('expiredGroup'),
+        expiredList: document.getElementById('expiredList'),
+        expiredCount: document.getElementById('expiredCount'),
+        reminderDialog: document.getElementById('reminderDialog'),
+        reminderForm: document.getElementById('reminderForm'),
+        reminderDialogTitle: document.getElementById('reminderDialogTitle'),
+        reminderNameInput: document.getElementById('reminderNameInput'),
+        reminderDateInput: document.getElementById('reminderDateInput'),
+        reminderTypeInput: document.getElementById('reminderTypeInput'),
+        reminderNoteInput: document.getElementById('reminderNoteInput'),
+        reminderFormError: document.getElementById('reminderFormError'),
+        deleteReminder: document.getElementById('deleteReminder'),
+        closeReminder: document.getElementById('closeReminder'),
+        cancelReminder: document.getElementById('cancelReminder')
+      };
+
+      var storageBroken = false;
+      var lastTheme = null;
+      var toastTimer = null;
+      var todayScrollPosition = 0;
+      var editingReminderId = null;
+      var calendarState = {
+        year: 0,
+        month: 0,
+        selectedKey: '',
+        days: {}
+      };
+      var state = {
+        homeEvent: null,
+        dateKey: '',
+        day: { plan: [], actual: [] },
+        reminders: []
+      };
+
+      function pad(value) {
+        return String(value).padStart(2, '0');
+      }
+
+      function dateKey(date) {
+        return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+      }
+
+      function isValidDayKey(value) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+          return false;
+        }
+        var parts = value.split('-').map(Number);
+        var date = new Date(parts[0], parts[1] - 1, parts[2]);
+        return (
+          date.getFullYear() === parts[0] &&
+          date.getMonth() === parts[1] - 1 &&
+          date.getDate() === parts[2]
+        );
+      }
+
+      function parseDayKey(value) {
+        var parts = value.split('-').map(Number);
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+
+      function makeId() {
+        try {
+          if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+            return window.crypto.randomUUID();
+          }
+        } catch (error) {
+          // Fall through to the simple id below.
+        }
+        return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);
+      }
+
+      function showStorageNotice() {
+        storageBroken = true;
+        els.storageNotice.hidden = false;
+      }
+
+      function showToast(message) {
+        els.toast.textContent = message;
+        els.toast.classList.add('is-visible');
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () {
+          els.toast.classList.remove('is-visible');
+        }, 2600);
+      }
+
+      function readStorage(key) {
+        try {
+          return window.localStorage.getItem(key);
+        } catch (error) {
+          showStorageNotice();
+          return null;
+        }
+      }
+
+      function writeStorage(key, value) {
+        try {
+          window.localStorage.setItem(key, value);
+          return true;
+        } catch (error) {
+          showStorageNotice();
+          return false;
+        }
+      }
+
+      function normaliseTasks(value) {
+        if (!Array.isArray(value)) {
+          return [];
+        }
+        return value
+          .filter(function (task) {
+            return task && typeof task.text === 'string' && task.text.trim();
+          })
+          .map(function (task) {
+            return {
+              id: typeof task.id === 'string' && task.id ? task.id : makeId(),
+              text: task.text.trim().slice(0, 120),
+              done: Boolean(task.done),
+              createdAt: Number(task.createdAt) || Date.now()
+            };
+          });
+      }
+
+      function loadDay(key) {
+        var raw = readStorage(DAY_PREFIX + key);
+        if (!raw) {
+          return { plan: [], actual: [] };
+        }
+        try {
+          var parsed = JSON.parse(raw);
+          return {
+            plan: normaliseTasks(parsed && parsed.plan),
+            actual: normaliseTasks(parsed && parsed.actual)
+          };
+        } catch (error) {
+          return { plan: [], actual: [] };
+        }
+      }
+
+      function saveDay() {
+        if (!state.dateKey) {
+          return;
+        }
+        writeStorage(
+          DAY_PREFIX + state.dateKey,
+          JSON.stringify({
+            date: state.dateKey,
+            plan: state.day.plan,
+            actual: state.day.actual,
+            updatedAt: Date.now()
+          })
+        );
+      }
+
+      function readAllStoredDays() {
+        var days = {};
+        try {
+          for (var index = 0; index < window.localStorage.length; index += 1) {
+            var storageKey = window.localStorage.key(index);
+            if (!storageKey || storageKey.indexOf(DAY_PREFIX) !== 0) {
+              continue;
+            }
+            var key = storageKey.slice(DAY_PREFIX.length);
+            if (!isValidDayKey(key)) {
+              continue;
+            }
+            var parsed = null;
+            try {
+              parsed = JSON.parse(window.localStorage.getItem(storageKey));
+            } catch (error) {
+              continue;
+            }
+            days[key] = {
+              plan: normaliseTasks(parsed && parsed.plan),
+              actual: normaliseTasks(parsed && parsed.actual),
+              updatedAt: Number(parsed && parsed.updatedAt) || null
+            };
+          }
+        } catch (error) {
+          showStorageNotice();
+        }
+        return days;
+      }
+
+      function mergeCurrentDayInto(days) {
+        if (!state.dateKey) {
+          return days;
+        }
+        var existing = days[state.dateKey];
+        days[state.dateKey] = {
+          plan: state.day.plan,
+          actual: state.day.actual,
+          updatedAt: existing ? existing.updatedAt : null
+        };
+        return days;
+      }
+
+      function normaliseReminder(item) {
+        if (!item || typeof item.name !== 'string' || !item.name.trim()) {
+          return null;
+        }
+        if (typeof item.date !== 'string' || !isValidDayKey(item.date)) {
+          return null;
+        }
+        var type = TYPE_META[item.type] ? item.type : 'other';
+        var status = REMINDER_STATUSES.indexOf(item.status) !== -1 ? item.status : 'pending';
+        var source = REMINDER_SOURCES.indexOf(item.source) !== -1 ? item.source : 'manual';
+        return {
+          id: typeof item.id === 'string' && item.id ? item.id : makeId(),
+          name: item.name.trim().slice(0, 80),
+          date: item.date,
+          type: type,
+          note: typeof item.note === 'string' ? item.note.slice(0, 300) : '',
+          status: status,
+          source: source,
+          readonly: source === 'countdown',
+          createdAt: Number(item.createdAt) || Date.now(),
+          updatedAt: Number(item.updatedAt) || Date.now(),
+          statusUpdatedAt: Number(item.statusUpdatedAt) || null
+        };
+      }
+
+      function loadReminders() {
+        var raw = readStorage(REMINDERS_KEY);
+        if (!raw) {
+          return [];
+        }
+        try {
+          var parsed = JSON.parse(raw);
+          var items = Array.isArray(parsed)
+            ? parsed
+            : parsed && Array.isArray(parsed.items)
+              ? parsed.items
+              : [];
+          return items.map(normaliseReminder).filter(Boolean);
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function saveReminders() {
+        writeStorage(
+          REMINDERS_KEY,
+          JSON.stringify({
+            version: 1,
+            items: state.reminders,
+            updatedAt: Date.now()
+          })
+        );
+      }
+
+      function syncCountdownReminder() {
+        var existingIndex = -1;
+        var existing = null;
+
+        state.reminders.forEach(function (item, index) {
+          if (item.source === 'countdown') {
+            existingIndex = index;
+            existing = item;
+          }
+        });
+
+        if (!state.homeEvent || !state.homeEvent.exam) {
+          if (existingIndex !== -1) {
+            state.reminders.splice(existingIndex, 1);
+            saveReminders();
+          }
+          return;
+        }
+
+        var now = Date.now();
+        var next = {
+          id: existing ? existing.id : 'countdown-exam',
+          name: state.homeEvent.name,
+          date: dateKey(new Date(state.homeEvent.target)),
+          type: 'exam',
+          note: '',
+          status: existing ? existing.status : 'pending',
+          source: 'countdown',
+          readonly: true,
+          createdAt: existing ? existing.createdAt : now,
+          updatedAt: now,
+          statusUpdatedAt: existing ? existing.statusUpdatedAt : null
+        };
+        var changed =
+          !existing ||
+          existing.name !== next.name ||
+          existing.date !== next.date ||
+          existing.status !== next.status ||
+          existing.readonly !== true ||
+          existing.type !== 'exam';
+
+        if (existingIndex === -1) {
+          state.reminders.push(next);
+        } else {
+          state.reminders[existingIndex] = next;
+        }
+        if (changed) {
+          saveReminders();
+        }
+      }
+
+      function loadEvent() {
+        var raw = readStorage(EVENT_KEY);
+        if (!raw) {
+          return null;
+        }
+        try {
+          var parsed = JSON.parse(raw);
+          if (
+            parsed &&
+            typeof parsed.name === 'string' &&
+            parsed.name.trim() &&
+            Number.isFinite(Number(parsed.target))
+          ) {
+            return {
+              name: parsed.name.trim().slice(0, 40),
+              target: Number(parsed.target),
+              exam: Boolean(parsed.exam),
+              updatedAt: Number(parsed.updatedAt) || Date.now()
+            };
+          }
+        } catch (error) {
+          return null;
+        }
+        return null;
+      }
+
+      function saveEvent(event) {
+        state.homeEvent = event;
+        writeStorage(EVENT_KEY, JSON.stringify(event));
+        renderEvent();
+        syncCountdownReminder();
+        refreshReminderSurfaces();
+      }
+
+      function getWeekday(date) {
+        return WEEKDAYS[date.getDay()];
+      }
+
+      function formatDateLine(date) {
+        return (date.getMonth() + 1) + '月' + date.getDate() + '日 · ' + getWeekday(date);
+      }
+
+      function formatEventDate(timestamp) {
+        var date = new Date(timestamp);
+        return (
+          date.getFullYear() + '年' +
+          (date.getMonth() + 1) + '月' +
+          date.getDate() + '日 · ' +
+          getWeekday(date) + ' · ' +
+          pad(date.getHours()) + ':' + pad(date.getMinutes())
+        );
+      }
+
+      function toLocalInputValue(timestamp) {
+        var date = new Date(timestamp);
+        return (
+          date.getFullYear() + '-' +
+          pad(date.getMonth() + 1) + '-' +
+          pad(date.getDate()) + 'T' +
+          pad(date.getHours()) + ':' +
+          pad(date.getMinutes())
+        );
+      }
+
+      function defaultTargetValue() {
+        var date = new Date();
+        date.setDate(date.getDate() + 1);
+        date.setHours(9, 0, 0, 0);
+        return toLocalInputValue(date.getTime());
+      }
+
+      function isSameLocalDay(first, second) {
+        return (
+          first.getFullYear() === second.getFullYear() &&
+          first.getMonth() === second.getMonth() &&
+          first.getDate() === second.getDate()
+        );
+      }
+
+      function getDoneCount(tasks) {
+        return tasks.filter(function (task) { return task.done; }).length;
+      }
+
+      function relativeDayLabel(date) {
+        var today = new Date();
+        var todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        var targetMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        var difference = Math.round((targetMidnight - todayMidnight) / 86400000);
+
+        if (difference === 0) {
+          return '今天';
+        }
+        if (difference === -1) {
+          return '昨天';
+        }
+        if (difference === 1) {
+          return '明天';
+        }
+        if (date.getFullYear() !== today.getFullYear()) {
+          return date.getFullYear() + '年';
+        }
+        return '';
+      }
+
+      function renderReadList(kind, tasks) {
+        var list = kind === 'plan' ? els.selectedPlanList : els.selectedActualList;
+        var empty = kind === 'plan' ? els.selectedPlanEmpty : els.selectedActualEmpty;
+        var fragment = document.createDocumentFragment();
+
+        tasks.forEach(function (task) {
+          var item = document.createElement('li');
+          item.className = 'read-item read-item--' + kind + (task.done ? ' is-done' : '');
+
+          var mark = document.createElement('span');
+          mark.className = 'read-item__mark';
+          mark.setAttribute('aria-hidden', 'true');
+          mark.innerHTML = CHECK_ICON;
+
+          var status = document.createElement('span');
+          status.className = 'sr-only';
+          status.textContent = task.done ? '已完成：' : '未完成：';
+
+          var text = document.createElement('span');
+          text.className = 'read-item__text';
+          text.textContent = task.text;
+
+          item.append(mark, status, text);
+          fragment.appendChild(item);
+        });
+
+        list.replaceChildren(fragment);
+        empty.hidden = tasks.length > 0;
+      }
+
+      function renderSelectedDay() {
+        if (!calendarState.selectedKey || !isValidDayKey(calendarState.selectedKey)) {
+          return;
+        }
+
+        var result = calendarState.days[calendarState.selectedKey] || { plan: [], actual: [] };
+        var date = parseDayKey(calendarState.selectedKey);
+        var planDone = getDoneCount(result.plan);
+        var actualDone = getDoneCount(result.actual);
+        var tag = relativeDayLabel(date);
+
+        els.selectedDateLabel.textContent =
+          (date.getMonth() + 1) + '月' + date.getDate() + '日 · ' + getWeekday(date);
+        els.selectedDateTag.textContent = tag;
+        els.selectedDateTag.hidden = !tag;
+        els.selectedSummary.textContent =
+          '计划 ' + planDone + '/' + result.plan.length +
+          ' · 实际 ' + actualDone + '/' + result.actual.length;
+        els.selectedPlanRatio.textContent = planDone + '/' + result.plan.length;
+        els.selectedActualRatio.textContent = actualDone + '/' + result.actual.length;
+
+        renderReadList('plan', result.plan);
+        renderReadList('actual', result.actual);
+      }
+
+      function createCalendarDayButton(date, todayKey) {
+        var key = dateKey(date);
+        var record = calendarState.days[key];
+        var hasPlan = Boolean(record && record.plan.length);
+        var hasActual = Boolean(record && record.actual.length);
+        var isToday = key === todayKey;
+        var isSelected = key === calendarState.selectedKey;
+
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'calendar-day';
+        button.dataset.key = key;
+        button.setAttribute('aria-pressed', String(isSelected));
+        if (isToday) {
+          button.classList.add('is-today');
+          button.setAttribute('aria-current', 'date');
+        }
+        if (isSelected) {
+          button.classList.add('is-selected');
+        }
+
+        var label = date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate() + '日，' + getWeekday(date);
+        if (isToday) {
+          label += '，今天';
+        }
+        if (hasPlan) {
+          label += '，有计划';
+        }
+        if (hasActual) {
+          label += '，有实际记录';
+        }
+        button.setAttribute('aria-label', label);
+
+        var number = document.createElement('span');
+        number.textContent = String(date.getDate());
+        button.appendChild(number);
+
+        if (hasPlan || hasActual) {
+          var dots = document.createElement('span');
+          dots.className = 'calendar-day__dots';
+          dots.setAttribute('aria-hidden', 'true');
+          if (hasPlan) {
+            var planDot = document.createElement('i');
+            planDot.className = 'calendar-day__dot';
+            dots.appendChild(planDot);
+          }
+          if (hasActual) {
+            var actualDot = document.createElement('i');
+            actualDot.className = 'calendar-day__dot calendar-day__dot--actual';
+            dots.appendChild(actualDot);
+          }
+          button.appendChild(dots);
+        }
+
+        button.addEventListener('click', function () {
+          selectCalendarDate(key, true);
+        });
+
+        return button;
+      }
+
+      function renderCalendar() {
+        var year = calendarState.year;
+        var month = calendarState.month;
+        var firstDay = new Date(year, month, 1);
+        var offset = (firstDay.getDay() + 6) % 7;
+        var daysInMonth = new Date(year, month + 1, 0).getDate();
+        var todayKey = dateKey(new Date());
+        var fragment = document.createDocumentFragment();
+
+        els.calendarMonth.textContent = year + '年' + (month + 1) + '月';
+        els.calendarGrid.setAttribute('aria-label', year + '年' + (month + 1) + '月，选择日期');
+
+        for (var cell = 0; cell < 42; cell += 1) {
+          var dayNumber = cell - offset + 1;
+          if (dayNumber < 1 || dayNumber > daysInMonth) {
+            var blank = document.createElement('span');
+            blank.className = 'calendar-day--blank';
+            blank.setAttribute('aria-hidden', 'true');
+            fragment.appendChild(blank);
+            continue;
+          }
+          fragment.appendChild(createCalendarDayButton(new Date(year, month, dayNumber), todayKey));
+        }
+
+        els.calendarGrid.replaceChildren(fragment);
+      }
+
+      function selectCalendarDate(key, shouldFocus) {
+        if (!isValidDayKey(key)) {
+          return;
+        }
+        calendarState.selectedKey = key;
+        renderCalendar();
+        renderSelectedDay();
+
+        if (shouldFocus) {
+          var selected = els.calendarGrid.querySelector('.calendar-day.is-selected');
+          if (selected) {
+            selected.focus({ preventScroll: true });
+          }
+        }
+      }
+
+      function moveCalendarMonth(delta) {
+        var target = new Date(calendarState.year, calendarState.month + delta, 1);
+        var today = new Date();
+        calendarState.year = target.getFullYear();
+        calendarState.month = target.getMonth();
+
+        var isCurrentMonth =
+          target.getFullYear() === today.getFullYear() &&
+          target.getMonth() === today.getMonth();
+        var day = isCurrentMonth ? today.getDate() : 1;
+        calendarState.selectedKey = dateKey(new Date(calendarState.year, calendarState.month, day));
+
+        renderCalendar();
+        renderSelectedDay();
+      }
+
+      function openCalendarDialog() {
+        calendarState.days = mergeCurrentDayInto(readAllStoredDays());
+
+        var today = new Date();
+        calendarState.year = today.getFullYear();
+        calendarState.month = today.getMonth();
+        calendarState.selectedKey = dateKey(today);
+
+        renderCalendar();
+        renderSelectedDay();
+
+        if (typeof els.calendarDialog.showModal === 'function') {
+          if (!els.calendarDialog.open) {
+            els.calendarDialog.showModal();
+          }
+        } else {
+          els.calendarDialog.setAttribute('open', '');
+        }
+        document.body.classList.add('dialog-open');
+
+        window.setTimeout(function () {
+          els.calendarDialog.focus({ preventScroll: true });
+        }, 40);
+      }
+
+      function closeCalendarDialog() {
+        if (typeof els.calendarDialog.close === 'function' && els.calendarDialog.open) {
+          els.calendarDialog.close();
+        } else {
+          els.calendarDialog.removeAttribute('open');
+          document.body.classList.remove('dialog-open');
+        }
+      }
+
+      function getTimeZoneName() {
+        try {
+          return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function exportTask(task) {
+        return {
+          id: task.id,
+          text: task.text,
+          done: Boolean(task.done),
+          createdAt: task.createdAt
+        };
+      }
+
+      function exportAllData() {
+        try {
+          var days = mergeCurrentDayInto(readAllStoredDays());
+          var keys = Object.keys(days).sort();
+          var exportedDays = keys.map(function (key) {
+            var day = days[key];
+            return {
+              date: key,
+              updatedAt: day.updatedAt || null,
+              plan: day.plan.map(exportTask),
+              actual: day.actual.map(exportTask)
+            };
+          });
+          var event = state.homeEvent
+            ? {
+                name: state.homeEvent.name,
+                target: state.homeEvent.target,
+                targetISO: new Date(state.homeEvent.target).toISOString(),
+                exam: Boolean(state.homeEvent.exam),
+                updatedAt: state.homeEvent.updatedAt
+              }
+            : null;
+          var exportedReminders = state.reminders.map(function (reminder) {
+            return {
+              id: reminder.id,
+              name: reminder.name,
+              date: reminder.date,
+              type: reminder.type,
+              note: reminder.note,
+              status: reminder.status,
+              source: reminder.source,
+              readonly: reminder.readonly,
+              createdAt: reminder.createdAt,
+              updatedAt: reminder.updatedAt,
+              statusUpdatedAt: reminder.statusUpdatedAt
+            };
+          });
+          var payload = {
+            app: '一日',
+            formatVersion: 2,
+            exportedAt: new Date().toISOString(),
+            timezone: getTimeZoneName(),
+            event: event,
+            days: exportedDays,
+            reminders: exportedReminders
+          };
+
+          var blob = new Blob([JSON.stringify(payload, null, 2)], {
+            type: 'application/json;charset=utf-8'
+          });
+          var url = URL.createObjectURL(blob);
+          var link = document.createElement('a');
+          link.href = url;
+          link.download = 'yiri-data-' + state.dateKey + '.json';
+          link.style.display = 'none';
+          document.body.appendChild(link);
+          link.click();
+
+          window.setTimeout(function () {
+            link.remove();
+            URL.revokeObjectURL(url);
+          }, 1200);
+
+          var filledDays = exportedDays.filter(function (day) {
+            return day.plan.length || day.actual.length;
+          }).length;
+          var parts = [];
+          if (filledDays) {
+            parts.push(filledDays + ' 天数据');
+          }
+          if (exportedReminders.length) {
+            parts.push(exportedReminders.length + ' 条事项');
+          }
+          showToast(parts.length ? '已导出 ' + parts.join('、') : '已导出全部数据');
+        } catch (error) {
+          showToast('导出失败，请稍后再试');
+        }
+      }
+
+      function updateClock(now) {
+        var text = pad(now.getHours()) + ':' + pad(now.getMinutes());
+        if (els.liveClock.textContent !== text) {
+          els.liveClock.textContent = text;
+          els.liveClock.setAttribute('datetime', now.toISOString());
+        }
+
+        var dateText = formatDateLine(now);
+        if (els.dateLine.textContent !== dateText) {
+          els.dateLine.textContent = dateText;
+        }
+      }
+
+      function syncTheme(now) {
+        var hour = now.getHours();
+        var theme = (hour >= 21 || hour < 6) ? 'dark' : 'light';
+        if (theme !== lastTheme) {
+          lastTheme = theme;
+          document.documentElement.dataset.theme = theme;
+          if (els.metaThemeColor) {
+            els.metaThemeColor.setAttribute('content', theme === 'dark' ? '#10110f' : '#f4f1ea');
+          }
+        }
+        els.periodText.textContent = theme === 'dark' ? '夜间' : '日间';
+      }
+
+      function setCountdownText(element, value) {
+        if (element.textContent !== value) {
+          element.textContent = value;
+        }
+      }
+
+      function updateCountdown(now) {
+        if (!state.homeEvent) {
+          return;
+        }
+
+        var diff = state.homeEvent.target - now.getTime();
+        if (diff <= 0) {
+          els.countdownCard.dataset.state = 'expired';
+          els.countdownLive.hidden = true;
+          els.eventArrived.hidden = false;
+          els.eventStatusText.textContent = '已到期';
+          els.countdownGrid.setAttribute('aria-label', state.homeEvent.name + '已到期');
+          return;
+        }
+
+        els.countdownCard.dataset.state = 'upcoming';
+        els.countdownLive.hidden = false;
+        els.eventArrived.hidden = true;
+
+        var totalSeconds = Math.floor(diff / 1000);
+        var days = Math.floor(totalSeconds / 86400);
+        var hours = Math.floor((totalSeconds % 86400) / 3600);
+        var minutes = Math.floor((totalSeconds % 3600) / 60);
+        var seconds = totalSeconds % 60;
+        var daysText = days > 999 ? '999+' : String(days);
+
+        setCountdownText(els.cdDays, daysText);
+        setCountdownText(els.cdHours, pad(hours));
+        setCountdownText(els.cdMinutes, pad(minutes));
+        setCountdownText(els.cdSeconds, pad(seconds));
+        els.cdDays.classList.toggle('unit__value--compact', days > 99);
+
+        var sameDay = isSameLocalDay(new Date(state.homeEvent.target), now);
+        els.eventStatusText.textContent = sameDay ? '就是今天' : '倒计时中';
+        els.countdownGrid.setAttribute(
+          'aria-label',
+          '距离' + state.homeEvent.name + '还有' +
+          days + '天' + hours + '小时' + minutes + '分钟' + seconds + '秒'
+        );
+      }
+
+      function renderEvent() {
+        var event = state.homeEvent;
+        var hasEvent = Boolean(event);
+
+        els.createEvent.hidden = hasEvent;
+        els.editEvent.hidden = !hasEvent;
+        els.eventActive.hidden = !hasEvent;
+
+        if (!hasEvent) {
+          els.countdownCard.dataset.state = 'empty';
+          els.eventTitle.textContent = '';
+          els.eventExamBadge.hidden = true;
+          return;
+        }
+
+        els.eventTitle.textContent = event.name;
+        els.eventTitle.title = event.name;
+        els.eventDate.textContent = formatEventDate(event.target);
+        els.eventExamBadge.hidden = !event.exam;
+        updateCountdown(new Date());
+      }
+
+      function getTypeMeta(type) {
+        return TYPE_META[type] || TYPE_META.other;
+      }
+
+      function getReminderDayDifference(dateString) {
+        var today = new Date();
+        var todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        var target = parseDayKey(dateString);
+        return Math.round((target - todayMidnight) / 86400000);
+      }
+
+      function formatReminderDate(dateString) {
+        var date = parseDayKey(dateString);
+        var currentYear = new Date().getFullYear();
+        var prefix = date.getFullYear() === currentYear ? '' : date.getFullYear() + '年';
+        return prefix + (date.getMonth() + 1) + '月' + date.getDate() + '日 · ' + getWeekday(date);
+      }
+
+      function formatReminderRelative(difference) {
+        if (difference < 0) {
+          return '已过期 ' + Math.abs(difference) + ' 天';
+        }
+        if (difference === 0) {
+          return '今天';
+        }
+        if (difference === 1) {
+          return '明天';
+        }
+        return '还有 ' + difference + ' 天';
+      }
+
+      function compareReminders(first, second) {
+        if (first.date !== second.date) {
+          return first.date < second.date ? -1 : 1;
+        }
+        if (first.createdAt !== second.createdAt) {
+          return first.createdAt - second.createdAt;
+        }
+        return first.name.localeCompare(second.name, 'zh-CN');
+      }
+
+      function findReminder(id) {
+        for (var index = 0; index < state.reminders.length; index += 1) {
+          if (state.reminders[index].id === id) {
+            return state.reminders[index];
+          }
+        }
+        return null;
+      }
+
+      function setReminderStatus(reminder, status) {
+        if (!reminder || REMINDER_STATUSES.indexOf(status) === -1) {
+          return;
+        }
+        reminder.status = status;
+        reminder.statusUpdatedAt = Date.now();
+        reminder.updatedAt = Date.now();
+        saveReminders();
+        refreshReminderSurfaces();
+
+        if (status === 'done') {
+          showToast('已标记为已完成');
+        } else if (status === 'cancelled') {
+          showToast('已标记为已取消');
+        } else {
+          showToast('已恢复为待办');
+        }
+      }
+
+      function createReminderAction(className, label, icon, pressed, ariaLabel) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'reminder-action ' + className;
+        button.setAttribute('aria-pressed', String(pressed));
+        button.setAttribute('aria-label', ariaLabel);
+        button.innerHTML = icon;
+        var text = document.createElement('span');
+        text.textContent = label;
+        button.appendChild(text);
+        return button;
+      }
+
+      function createReminderCard(reminder) {
+        var difference = getReminderDayDifference(reminder.date);
+        var typeMeta = getTypeMeta(reminder.type);
+        var card = document.createElement('article');
+        card.className = 'reminder-item';
+        card.dataset.id = reminder.id;
+        card.dataset.status = reminder.status;
+        if (reminder.source === 'countdown' || reminder.readonly) {
+          card.classList.add('is-generated');
+        }
+        if (reminder.status === 'done') {
+          card.classList.add('is-done');
+        }
+        if (reminder.status === 'cancelled') {
+          card.classList.add('is-cancelled');
+        }
+
+        var meta = document.createElement('div');
+        meta.className = 'reminder-item__meta';
+
+        var type = document.createElement('span');
+        type.className = 'type-badge ' + typeMeta.className;
+        type.textContent = typeMeta.label;
+        meta.appendChild(type);
+
+        var when = document.createElement('time');
+        when.className = 'reminder-when' + (difference < 0 ? ' is-overdue' : '');
+        when.dateTime = reminder.date;
+        when.textContent = formatReminderDate(reminder.date) + ' · ' + formatReminderRelative(difference);
+        meta.appendChild(when);
+
+        if (reminder.status === 'done') {
+          var doneBadge = document.createElement('span');
+          doneBadge.className = 'reminder-status reminder-status--done';
+          doneBadge.textContent = '已完成';
+          meta.appendChild(doneBadge);
+        } else if (reminder.status === 'cancelled') {
+          var cancelledBadge = document.createElement('span');
+          cancelledBadge.className = 'reminder-status reminder-status--cancelled';
+          cancelledBadge.textContent = '已取消';
+          meta.appendChild(cancelledBadge);
+        }
+
+        if (reminder.source === 'countdown') {
+          var source = document.createElement('span');
+          source.className = 'reminder-source';
+          source.innerHTML = LOCK_ICON;
+          source.appendChild(document.createTextNode('来自倒计时 · 内容只读'));
+          meta.appendChild(source);
+        }
+
+        var title = document.createElement('h3');
+        title.className = 'reminder-item__title';
+        title.textContent = reminder.name;
+
+        card.append(meta, title);
+
+        if (reminder.note) {
+          var note = document.createElement('p');
+          note.className = 'reminder-item__note';
+          note.textContent = reminder.note;
+          card.appendChild(note);
+        }
+
+        var foot = document.createElement('div');
+        foot.className = 'reminder-item__foot';
+        var actions = document.createElement('div');
+        actions.className = 'reminder-actions';
+
+        var doneButton = createReminderAction(
+          'reminder-action--done',
+          reminder.status === 'done' ? '已完成' : '完成',
+          DONE_ICON,
+          reminder.status === 'done',
+          reminder.status === 'done' ? '恢复为待办：' + reminder.name : '标记为已完成：' + reminder.name
+        );
+        doneButton.addEventListener('click', function () {
+          setReminderStatus(reminder, reminder.status === 'done' ? 'pending' : 'done');
+        });
+
+        var cancelButton = createReminderAction(
+          'reminder-action--cancel',
+          reminder.status === 'cancelled' ? '已取消' : '取消',
+          CANCEL_ICON,
+          reminder.status === 'cancelled',
+          reminder.status === 'cancelled' ? '恢复为待办：' + reminder.name : '标记为已取消：' + reminder.name
+        );
+        cancelButton.addEventListener('click', function () {
+          setReminderStatus(reminder, reminder.status === 'cancelled' ? 'pending' : 'cancelled');
+        });
+
+        actions.append(doneButton, cancelButton);
+        foot.appendChild(actions);
+
+        if (!reminder.readonly) {
+          var editButton = document.createElement('button');
+          editButton.type = 'button';
+          editButton.className = 'reminder-edit';
+          editButton.textContent = '编辑';
+          editButton.setAttribute('aria-label', '编辑事项：' + reminder.name);
+          editButton.addEventListener('click', function () {
+            openReminderDialog(reminder.id);
+          });
+          foot.appendChild(editButton);
+        }
+
+        card.appendChild(foot);
+        return card;
+      }
+
+      function renderReminderList(list, items, empty) {
+        var fragment = document.createDocumentFragment();
+        items.forEach(function (reminder) {
+          fragment.appendChild(createReminderCard(reminder));
+        });
+        list.replaceChildren(fragment);
+        if (empty) {
+          empty.hidden = items.length > 0;
+        }
+      }
+
+      function renderReminders() {
+        var sorted = state.reminders.slice().sort(compareReminders);
+        var withinSeven = [];
+        var later = [];
+        var expired = [];
+
+        sorted.forEach(function (reminder) {
+          var difference = getReminderDayDifference(reminder.date);
+          if (difference < 0) {
+            expired.push(reminder);
+          } else if (difference <= 7) {
+            withinSeven.push(reminder);
+          } else {
+            later.push(reminder);
+          }
+        });
+
+        var isEmpty = state.reminders.length === 0;
+        els.reminderEmptyState.hidden = !isEmpty;
+        els.reminderGroups.hidden = isEmpty;
+
+        els.within7Count.textContent = String(withinSeven.length);
+        els.laterCount.textContent = String(later.length);
+        els.expiredCount.textContent = String(expired.length);
+        els.expiredGroup.hidden = expired.length === 0;
+
+        renderReminderList(els.within7List, withinSeven, els.within7Empty);
+        renderReminderList(els.laterList, later, els.laterEmpty);
+        renderReminderList(els.expiredList, expired, null);
+      }
+
+      function renderNearestReminder() {
+        var upcoming = state.reminders
+          .filter(function (reminder) {
+            return reminder.status === 'pending' && getReminderDayDifference(reminder.date) >= 0;
+          })
+          .sort(compareReminders);
+
+        if (!upcoming.length) {
+          els.nearestReminder.hidden = true;
+          els.nearestReminder.removeAttribute('aria-label');
+          return;
+        }
+
+        var reminder = upcoming[0];
+        var difference = getReminderDayDifference(reminder.date);
+        var typeMeta = getTypeMeta(reminder.type);
+
+        els.nearestTypeBadge.className = 'type-badge ' + typeMeta.className;
+        els.nearestTypeBadge.textContent = typeMeta.label;
+        els.nearestDate.dateTime = reminder.date;
+        els.nearestDate.textContent = formatReminderDate(reminder.date) + ' · ' + formatReminderRelative(difference);
+        els.nearestName.textContent = reminder.name;
+        els.nearestReminder.hidden = false;
+        els.nearestReminder.setAttribute(
+          'aria-label',
+          '最近事项：' + typeMeta.label + '，' + formatReminderDate(reminder.date) + '，' + reminder.name
+        );
+      }
+
+      function refreshReminderSurfaces() {
+        renderNearestReminder();
+        if (!els.reminderPage.hidden) {
+          renderReminders();
+        }
+      }
+
+      function showReminderPage() {
+        todayScrollPosition = window.scrollY;
+        els.todayPage.hidden = true;
+        els.summaryFooter.hidden = true;
+        els.reminderPage.hidden = false;
+        document.body.classList.add('view-reminders');
+        document.title = '一日 · 重要事项提醒表';
+        renderReminders();
+        renderNearestReminder();
+        window.scrollTo(0, 0);
+        els.reminderTitle.focus({ preventScroll: true });
+      }
+
+      function showTodayPage() {
+        els.reminderPage.hidden = true;
+        els.todayPage.hidden = false;
+        els.summaryFooter.hidden = false;
+        document.body.classList.remove('view-reminders');
+        document.title = '一日 · 今天';
+        window.scrollTo(0, todayScrollPosition);
+        els.openReminders.focus({ preventScroll: true });
+      }
+
+      function showReminderFormError(message, field) {
+        els.reminderFormError.textContent = message;
+        if (field) {
+          field.focus({ preventScroll: true });
+        }
+      }
+
+      function openReminderDialog(id) {
+        var reminder = id ? findReminder(id) : null;
+        if (id && (!reminder || reminder.readonly)) {
+          return;
+        }
+
+        editingReminderId = reminder ? reminder.id : null;
+        els.reminderFormError.textContent = '';
+        els.reminderDialogTitle.textContent = reminder ? '编辑事项' : '添加事项';
+        els.deleteReminder.hidden = !reminder;
+        els.reminderNameInput.value = reminder ? reminder.name : '';
+        els.reminderDateInput.value = reminder ? reminder.date : (state.dateKey || dateKey(new Date()));
+        els.reminderTypeInput.value = reminder ? reminder.type : 'exam';
+        els.reminderNoteInput.value = reminder ? reminder.note : '';
+
+        if (typeof els.reminderDialog.showModal === 'function') {
+          if (!els.reminderDialog.open) {
+            els.reminderDialog.showModal();
+          }
+        } else {
+          els.reminderDialog.setAttribute('open', '');
+        }
+        document.body.classList.add('dialog-open');
+
+        window.setTimeout(function () {
+          els.reminderNameInput.focus({ preventScroll: true });
+          els.reminderNameInput.select();
+        }, 60);
+      }
+
+      function closeReminderDialog() {
+        if (typeof els.reminderDialog.close === 'function' && els.reminderDialog.open) {
+          els.reminderDialog.close();
+        } else {
+          els.reminderDialog.removeAttribute('open');
+          document.body.classList.remove('dialog-open');
+        }
+      }
+
+      function updateEmptyState(kind) {
+        var list = state.day[kind];
+        var empty = kind === 'plan' ? els.planEmpty : els.actualEmpty;
+        empty.hidden = list.length > 0;
+      }
+
+      function updateCounts() {
+        var planTotal = state.day.plan.length;
+        var planDone = state.day.plan.filter(function (task) { return task.done; }).length;
+        var actualTotal = state.day.actual.length;
+        var actualDone = state.day.actual.filter(function (task) { return task.done; }).length;
+        var percent = planTotal ? Math.round((planDone / planTotal) * 100) : 0;
+
+        els.planRatio.textContent = planDone + '/' + planTotal;
+        els.actualRatio.textContent = actualDone + '/' + actualTotal;
+        els.summaryFraction.textContent = planDone + '/' + planTotal;
+        els.summaryPercent.textContent = percent + '%';
+        els.summaryBar.style.width = percent + '%';
+        els.summaryProgress.setAttribute('aria-valuemax', String(planTotal || 1));
+        els.summaryProgress.setAttribute('aria-valuenow', String(planDone));
+        els.summaryProgress.setAttribute(
+          'aria-valuetext',
+          '今日计划完成 ' + planDone + ' 条，共 ' + planTotal + ' 条'
+        );
+      }
+
+      function renderTask(kind, task) {
+        var li = document.createElement('li');
+        li.className = 'task' + (task.done ? ' is-done' : '');
+        li.dataset.id = task.id;
+
+        var label = document.createElement('label');
+        label.className = 'task__label';
+
+        var checkbox = document.createElement('input');
+        checkbox.className = 'task__check';
+        checkbox.type = 'checkbox';
+        checkbox.checked = task.done;
+        checkbox.setAttribute('aria-label', (task.done ? '取消完成：' : '完成：') + task.text);
+
+        var box = document.createElement('span');
+        box.className = 'task__box';
+        box.setAttribute('aria-hidden', 'true');
+        box.innerHTML = CHECK_ICON;
+
+        var text = document.createElement('span');
+        text.className = 'task__text';
+        text.textContent = task.text;
+
+        var remove = document.createElement('button');
+        remove.className = 'task__remove';
+        remove.type = 'button';
+        remove.setAttribute('aria-label', '删除：' + task.text);
+        remove.title = '删除';
+        remove.innerHTML = REMOVE_ICON;
+
+        checkbox.addEventListener('change', function () {
+          task.done = checkbox.checked;
+          li.classList.toggle('is-done', task.done);
+          checkbox.setAttribute('aria-label', (task.done ? '取消完成：' : '完成：') + task.text);
+          saveDay();
+          updateCounts();
+        });
+
+        remove.addEventListener('click', function () {
+          var index = state.day[kind].indexOf(task);
+          if (index !== -1) {
+            state.day[kind].splice(index, 1);
+          }
+          saveDay();
+          li.remove();
+          updateEmptyState(kind);
+          updateCounts();
+        });
+
+        label.append(checkbox, box, text);
+        li.append(label, remove);
+        return li;
+      }
+
+      function renderTasks(kind) {
+        var list = kind === 'plan' ? els.planList : els.actualList;
+        var fragment = document.createDocumentFragment();
+        state.day[kind].forEach(function (task) {
+          fragment.appendChild(renderTask(kind, task));
+        });
+        list.replaceChildren(fragment);
+        updateEmptyState(kind);
+        updateCounts();
+      }
+
+      function addTask(kind, text) {
+        var value = text.trim().slice(0, 120);
+        if (!value) {
+          return false;
+        }
+        state.day[kind].unshift({
+          id: makeId(),
+          text: value,
+          done: false,
+          createdAt: Date.now()
+        });
+        saveDay();
+        renderTasks(kind);
+        updateCounts();
+
+        var list = kind === 'plan' ? els.planList : els.actualList;
+        var firstTask = list.firstElementChild;
+        if (firstTask) {
+          firstTask.classList.add('task--new');
+        }
+        return true;
+      }
+
+      function handleAdd(kind, input) {
+        if (addTask(kind, input.value)) {
+          input.value = '';
+          input.focus({ preventScroll: true });
+        } else {
+          input.focus({ preventScroll: true });
+        }
+      }
+
+      function refreshDay(now) {
+        var key = dateKey(now);
+        if (key === state.dateKey) {
+          return;
+        }
+        state.dateKey = key;
+        state.day = loadDay(key);
+        els.planInput.value = '';
+        els.actualInput.value = '';
+        renderTasks('plan');
+        renderTasks('actual');
+        refreshReminderSurfaces();
+      }
+
+      function tick() {
+        var now = new Date();
+        updateClock(now);
+        syncTheme(now);
+        refreshDay(now);
+        updateCountdown(now);
+      }
+
+      function openEventDialog() {
+        els.formError.textContent = '';
+
+        if (state.homeEvent) {
+          els.eventNameInput.value = state.homeEvent.name;
+          els.eventDateInput.value = toLocalInputValue(state.homeEvent.target);
+          els.eventExamInput.checked = Boolean(state.homeEvent.exam);
+        } else {
+          els.eventNameInput.value = '';
+          els.eventDateInput.value = defaultTargetValue();
+          els.eventExamInput.checked = false;
+        }
+
+        if (typeof els.eventDialog.showModal === 'function') {
+          if (!els.eventDialog.open) {
+            els.eventDialog.showModal();
+          }
+        } else {
+          els.eventDialog.setAttribute('open', '');
+        }
+        document.body.classList.add('dialog-open');
+
+        window.setTimeout(function () {
+          els.eventNameInput.focus({ preventScroll: true });
+          els.eventNameInput.select();
+        }, 60);
+      }
+
+      function closeEventDialog() {
+        if (typeof els.eventDialog.close === 'function' && els.eventDialog.open) {
+          els.eventDialog.close();
+        } else {
+          els.eventDialog.removeAttribute('open');
+          document.body.classList.remove('dialog-open');
+        }
+      }
+
+      function showFormError(message, field) {
+        els.formError.textContent = message;
+        if (field) {
+          field.focus({ preventScroll: true });
+        }
+      }
+
+      els.createEvent.addEventListener('click', openEventDialog);
+      els.editEvent.addEventListener('click', openEventDialog);
+      els.closeDialog.addEventListener('click', closeEventDialog);
+      els.cancelDialog.addEventListener('click', closeEventDialog);
+      els.eventDialog.addEventListener('close', function () {
+        document.body.classList.remove('dialog-open');
+      });
+
+      els.openReminders.addEventListener('click', showReminderPage);
+      els.backToday.addEventListener('click', showTodayPage);
+      els.nearestReminder.addEventListener('click', showReminderPage);
+      els.addReminder.addEventListener('click', function () {
+        openReminderDialog(null);
+      });
+      els.closeReminder.addEventListener('click', closeReminderDialog);
+      els.cancelReminder.addEventListener('click', closeReminderDialog);
+      els.reminderDialog.addEventListener('close', function () {
+        document.body.classList.remove('dialog-open');
+      });
+
+      els.reminderDialog.addEventListener('click', function (event) {
+        if (event.target !== els.reminderDialog) {
+          return;
+        }
+        var rect = els.reminderDialog.getBoundingClientRect();
+        var outside =
+          event.clientX < rect.left ||
+          event.clientX > rect.right ||
+          event.clientY < rect.top ||
+          event.clientY > rect.bottom;
+        if (outside) {
+          closeReminderDialog();
+        }
+      });
+
+      els.reminderNameInput.addEventListener('input', function () {
+        els.reminderFormError.textContent = '';
+      });
+      els.reminderDateInput.addEventListener('input', function () {
+        els.reminderFormError.textContent = '';
+      });
+
+      els.reminderForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var name = els.reminderNameInput.value.trim();
+        var date = els.reminderDateInput.value;
+        var type = els.reminderTypeInput.value;
+        var note = els.reminderNoteInput.value.trim();
+
+        if (!name) {
+          showReminderFormError('给这件事起个名字。', els.reminderNameInput);
+          return;
+        }
+        if (!date || !isValidDayKey(date)) {
+          showReminderFormError('选择一个有效的日期。', els.reminderDateInput);
+          return;
+        }
+        if (!TYPE_META[type]) {
+          showReminderFormError('选择一个有效的类型。', els.reminderTypeInput);
+          return;
+        }
+
+        var now = Date.now();
+        if (editingReminderId) {
+          var existing = findReminder(editingReminderId);
+          if (!existing || existing.readonly) {
+            closeReminderDialog();
+            return;
+          }
+          existing.name = name.slice(0, 80);
+          existing.date = date;
+          existing.type = type;
+          existing.note = note.slice(0, 300);
+          existing.updatedAt = now;
+          showToast('已更新事项');
+        } else {
+          state.reminders.push({
+            id: makeId(),
+            name: name.slice(0, 80),
+            date: date,
+            type: type,
+            note: note.slice(0, 300),
+            status: 'pending',
+            source: 'manual',
+            readonly: false,
+            createdAt: now,
+            updatedAt: now,
+            statusUpdatedAt: null
+          });
+          showToast('已添加事项');
+        }
+
+        saveReminders();
+        closeReminderDialog();
+        refreshReminderSurfaces();
+      });
+
+      els.deleteReminder.addEventListener('click', function () {
+        if (!editingReminderId) {
+          return;
+        }
+        var reminder = findReminder(editingReminderId);
+        if (!reminder || reminder.readonly) {
+          return;
+        }
+        if (!window.confirm('删除「' + reminder.name + '」？')) {
+          return;
+        }
+        state.reminders = state.reminders.filter(function (item) {
+          return item.id !== reminder.id;
+        });
+        saveReminders();
+        closeReminderDialog();
+        refreshReminderSurfaces();
+        showToast('已删除事项');
+      });
+
+      els.openCalendar.addEventListener('click', openCalendarDialog);
+      els.exportData.addEventListener('click', exportAllData);
+      els.closeCalendar.addEventListener('click', closeCalendarDialog);
+      els.prevMonth.addEventListener('click', function () {
+        moveCalendarMonth(-1);
+      });
+      els.nextMonth.addEventListener('click', function () {
+        moveCalendarMonth(1);
+      });
+      els.calendarToday.addEventListener('click', function () {
+        var today = new Date();
+        calendarState.year = today.getFullYear();
+        calendarState.month = today.getMonth();
+        calendarState.selectedKey = dateKey(today);
+        renderCalendar();
+        renderSelectedDay();
+      });
+      els.calendarDialog.addEventListener('close', function () {
+        document.body.classList.remove('dialog-open');
+      });
+
+      els.calendarDialog.addEventListener('click', function (event) {
+        if (event.target !== els.calendarDialog) {
+          return;
+        }
+        var rect = els.calendarDialog.getBoundingClientRect();
+        var outside =
+          event.clientX < rect.left ||
+          event.clientX > rect.right ||
+          event.clientY < rect.top ||
+          event.clientY > rect.bottom;
+        if (outside) {
+          closeCalendarDialog();
+        }
+      });
+
+      els.eventDialog.addEventListener('click', function (event) {
+        if (event.target !== els.eventDialog) {
+          return;
+        }
+        var rect = els.eventDialog.getBoundingClientRect();
+        var outside =
+          event.clientX < rect.left ||
+          event.clientX > rect.right ||
+          event.clientY < rect.top ||
+          event.clientY > rect.bottom;
+        if (outside) {
+          closeEventDialog();
+        }
+      });
+
+      els.eventNameInput.addEventListener('input', function () {
+        els.formError.textContent = '';
+      });
+      els.eventDateInput.addEventListener('input', function () {
+        els.formError.textContent = '';
+      });
+
+      els.eventForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var name = els.eventNameInput.value.trim();
+        var targetValue = els.eventDateInput.value;
+        var target = targetValue ? new Date(targetValue).getTime() : NaN;
+
+        if (!name) {
+          showFormError('给这件事起个名字。', els.eventNameInput);
+          return;
+        }
+        if (!targetValue || Number.isNaN(target)) {
+          showFormError('选择一个有效的日期和时间。', els.eventDateInput);
+          return;
+        }
+        if (target <= Date.now()) {
+          showFormError('请选择一个未来的时间。', els.eventDateInput);
+          return;
+        }
+
+        saveEvent({
+          name: name.slice(0, 40),
+          target: target,
+          exam: els.eventExamInput.checked,
+          updatedAt: Date.now()
+        });
+
+        closeEventDialog();
+      });
+
+      els.planForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        handleAdd('plan', els.planInput);
+      });
+
+      els.actualForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        handleAdd('actual', els.actualInput);
+      });
+
+      window.addEventListener('storage', function (event) {
+        if (event.key === null || event.key === EVENT_KEY) {
+          state.homeEvent = loadEvent();
+          renderEvent();
+          syncCountdownReminder();
+          refreshReminderSurfaces();
+        }
+        if (event.key === null || event.key === REMINDERS_KEY) {
+          state.reminders = loadReminders();
+          syncCountdownReminder();
+          refreshReminderSurfaces();
+        }
+        if (event.key === null || event.key === DAY_PREFIX + state.dateKey) {
+          state.day = loadDay(state.dateKey);
+          renderTasks('plan');
+          renderTasks('actual');
+        }
+        if (els.calendarDialog.open) {
+          calendarState.days = mergeCurrentDayInto(readAllStoredDays());
+          renderCalendar();
+          renderSelectedDay();
+        }
+      });
+
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) {
+          tick();
+        }
+      });
+
+      state.dateKey = dateKey(new Date());
+      state.homeEvent = loadEvent();
+      state.day = loadDay(state.dateKey);
+      state.reminders = loadReminders();
+      syncCountdownReminder();
+
+      var now = new Date();
+      updateClock(now);
+      syncTheme(now);
+      renderEvent();
+      renderTasks('plan');
+      renderTasks('actual');
+      refreshReminderSurfaces();
+
+      if (storageBroken) {
+        els.storageNotice.hidden = false;
+      }
+
+      window.setInterval(tick, 1000);
+    })();
+  </script>
+</body>
+</html>
