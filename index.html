@@ -835,6 +835,130 @@
       pointer-events: none;
     }
 
+    .plan-add {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .plan-date-field {
+      display: flex;
+      height: 28px;
+      min-width: 0;
+      align-items: center;
+      gap: 5px;
+      padding: 0 7px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: var(--fill);
+      transition: background-color 0.18s ease, border-color 0.18s ease,
+        box-shadow 0.18s ease;
+    }
+
+    .plan-date-field:focus-within {
+      border-color: var(--line-strong);
+      background: var(--surface-raised);
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    .plan-date-field span {
+      flex: 0 0 auto;
+      color: var(--muted-2);
+      font-size: 8.5px;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .plan-date-field input {
+      width: 100%;
+      min-width: 0;
+      height: 26px;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 16px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .plan-date-field input::-webkit-date-and-time-value {
+      text-align: left;
+    }
+
+    .log-list {
+      display: grid;
+      gap: 0;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .log-entry {
+      display: grid;
+      grid-template-columns: 31px minmax(0, 1fr) 17px;
+      gap: 4px;
+      align-items: start;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .log-entry:last-child {
+      border-bottom: 0;
+    }
+
+    .log-entry__time {
+      padding-top: 1px;
+      color: var(--muted-2);
+      font-size: 9px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.6;
+      white-space: nowrap;
+    }
+
+    .log-entry__text {
+      min-width: 0;
+      color: var(--ink);
+      font-size: 12.5px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .log-entry__remove {
+      display: grid;
+      width: 17px;
+      height: 20px;
+      padding: 0;
+      place-items: center;
+      border: 0;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--muted-2);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.16s ease, color 0.16s ease, background-color 0.16s ease;
+    }
+
+    .log-entry__remove svg {
+      width: 9px;
+      height: 9px;
+      pointer-events: none;
+    }
+
+    .log-entry__remove:hover,
+    .log-entry__remove:focus-visible {
+      background: var(--fill);
+      color: var(--danger);
+      opacity: 1;
+    }
+
+    .log-entry:hover .log-entry__remove,
+    .log-entry:focus-within .log-entry__remove {
+      opacity: 0.48;
+    }
+
     .task-list {
       display: grid;
       gap: 1px;
@@ -905,6 +1029,15 @@
     .task__check:focus-visible + .task__box {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
+    }
+
+    .task__check:disabled + .task__box {
+      border-style: dashed;
+      opacity: 0.38;
+    }
+
+    .task__check:disabled:checked + .task__box {
+      opacity: 0.58;
     }
 
     .task__label:active .task__box {
@@ -2043,6 +2176,177 @@
       line-height: 1.5;
     }
 
+    .calendar-plan-head {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 7px;
+    }
+
+    .calendar-plan-head h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 10.5px;
+      font-weight: 620;
+      letter-spacing: 0.01em;
+      line-height: 1.3;
+    }
+
+    .calendar-plan-head .day-detail__ratio {
+      margin-left: auto;
+    }
+
+    .calendar-plan-list {
+      display: grid;
+      gap: 1px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .calendar-plan-item {
+      display: flex;
+      min-width: 0;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .calendar-plan-label {
+      display: flex;
+      min-width: 0;
+      flex: 1;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 7px 0;
+      cursor: pointer;
+    }
+
+    .calendar-plan-label.is-locked {
+      cursor: default;
+    }
+
+    .calendar-plan-text {
+      min-width: 0;
+      padding-top: 0.5px;
+      color: var(--ink);
+      font-size: 12px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .calendar-plan-item.is-done .calendar-plan-text {
+      color: var(--muted);
+      text-decoration: line-through;
+      text-decoration-color: var(--muted-2);
+      text-decoration-thickness: 1px;
+      opacity: 0.72;
+    }
+
+    .calendar-plan-remove {
+      display: grid;
+      width: 21px;
+      height: 28px;
+      flex: 0 0 21px;
+      margin-top: 1px;
+      padding: 0;
+      place-items: center;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted-2);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.16s ease, color 0.16s ease, background-color 0.16s ease;
+    }
+
+    .calendar-plan-remove svg {
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+    }
+
+    .calendar-plan-remove:hover,
+    .calendar-plan-remove:focus-visible {
+      background: var(--surface-raised);
+      color: var(--danger);
+      opacity: 1;
+    }
+
+    .calendar-plan-item:hover .calendar-plan-remove,
+    .calendar-plan-item:focus-within .calendar-plan-remove {
+      opacity: 0.48;
+    }
+
+    .calendar-plan-empty {
+      margin: 5px 0 0;
+      color: var(--muted-2);
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .calendar-plan-add {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      min-width: 0;
+      margin-top: 9px;
+      padding: 0 3px 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-raised);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .calendar-plan-add:focus-within {
+      border-color: var(--line-strong);
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    .calendar-plan-add input {
+      width: 100%;
+      min-width: 0;
+      height: 38px;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .calendar-plan-add input::placeholder {
+      color: var(--muted-2);
+      opacity: 1;
+    }
+
+    .calendar-plan-add button {
+      display: grid;
+      width: 26px;
+      height: 26px;
+      flex: 0 0 26px;
+      padding: 0;
+      place-items: center;
+      border: 0;
+      border-radius: 7px;
+      background: var(--ink);
+      color: var(--bg);
+      cursor: pointer;
+    }
+
+    .calendar-plan-add button svg {
+      width: 13px;
+      height: 13px;
+      pointer-events: none;
+    }
+
+    .calendar-plan-hint {
+      margin: 7px 2px 0;
+      color: var(--muted-2);
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
     .event-dialog {
       width: min(calc(100% - 28px), 420px);
       max-width: none;
@@ -2253,6 +2557,14 @@
       .task__remove {
         opacity: 0.4;
       }
+
+      .log-entry__remove {
+        opacity: 0.5;
+      }
+
+      .calendar-plan-remove {
+        opacity: 0.68;
+      }
     }
 
     @media (min-width: 600px) {
@@ -2422,6 +2734,31 @@
         flex-basis: 27px;
       }
 
+      .plan-date-field {
+        height: 30px;
+        padding-right: 9px;
+        padding-left: 9px;
+      }
+
+      .plan-date-field input {
+        height: 28px;
+        font-size: 14px;
+      }
+
+      .log-entry {
+        grid-template-columns: 34px minmax(0, 1fr) 18px;
+        gap: 5px;
+        padding: 8px 0;
+      }
+
+      .log-entry__time {
+        font-size: 9.5px;
+      }
+
+      .log-entry__text {
+        font-size: 13px;
+      }
+
       .task__label {
         gap: 9px;
         padding: 8px 0;
@@ -2486,6 +2823,15 @@
 
       .read-item__text {
         font-size: 12.5px;
+      }
+
+      .calendar-plan-text {
+        font-size: 12.5px;
+      }
+
+      .calendar-plan-add input {
+        height: 40px;
+        font-size: 14px;
       }
     }
 
@@ -2635,6 +2981,28 @@
         font-size: 12.5px;
       }
 
+      .plan-date-field {
+        padding-right: 5px;
+        padding-left: 5px;
+      }
+
+      .plan-date-field span {
+        display: none;
+      }
+
+      .log-entry {
+        grid-template-columns: 29px minmax(0, 1fr) 15px;
+        gap: 3px;
+      }
+
+      .log-entry__text {
+        font-size: 12px;
+      }
+
+      .log-entry__remove {
+        width: 15px;
+      }
+
       .summary {
         padding-right: 14px;
         padding-left: 14px;
@@ -2759,7 +3127,7 @@
         </svg>
         <span>提醒表</span>
       </button>
-      <button class="utility-button" id="openCalendar" type="button" title="查看历史记录（只读）">
+      <button class="utility-button" id="openCalendar" type="button" title="按日期查看和添加计划">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="3.5" y="5" width="17" height="15.5" rx="3"></rect>
           <path d="M8 3.5V7M16 3.5V7M3.5 10h17"></path>
@@ -2867,14 +3235,20 @@
           </div>
           <span class="column__ratio" id="planRatio">0/0</span>
         </div>
-        <form class="quick-add" id="planForm" novalidate>
-          <label class="sr-only" for="planInput">添加今日计划</label>
-          <input class="quick-add__input" id="planInput" type="text" placeholder="添加计划" maxlength="120" autocomplete="off" enterkeyhint="done">
-          <button class="quick-add__button" type="submit" aria-label="添加计划">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-              <path d="M12 5v14M5 12h14"></path>
-            </svg>
-          </button>
+        <form class="plan-add" id="planForm" novalidate>
+          <div class="quick-add">
+            <label class="sr-only" for="planInput">添加计划内容</label>
+            <input class="quick-add__input" id="planInput" type="text" placeholder="添加计划" maxlength="120" autocomplete="off" enterkeyhint="done">
+            <button class="quick-add__button" type="submit" aria-label="添加计划">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14"></path>
+              </svg>
+            </button>
+          </div>
+          <label class="plan-date-field" for="planDateInput">
+            <span>日期</span>
+            <input id="planDateInput" type="date" aria-label="计划日期">
+          </label>
         </form>
         <ul class="task-list" id="planList" aria-label="今日计划列表"></ul>
         <p class="column__empty" id="planEmpty">从一件小事开始。</p>
@@ -2888,10 +3262,10 @@
             <span class="column__dot column__dot--actual" aria-hidden="true"></span>
             <h2 id="actualHeading">今日实际</h2>
           </div>
-          <span class="column__ratio" id="actualRatio">0/0</span>
+          <span class="column__ratio" id="actualCount">0 条</span>
         </div>
         <form class="quick-add" id="actualForm" novalidate>
-          <label class="sr-only" for="actualInput">添加今日实际</label>
+          <label class="sr-only" for="actualInput">添加今日实际记录</label>
           <input class="quick-add__input" id="actualInput" type="text" placeholder="记录实际" maxlength="120" autocomplete="off" enterkeyhint="done">
           <button class="quick-add__button" type="submit" aria-label="添加实际记录">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -2899,8 +3273,8 @@
             </svg>
           </button>
         </form>
-        <ul class="task-list" id="actualList" aria-label="今日实际列表"></ul>
-        <p class="column__empty" id="actualEmpty">记录已经发生的。</p>
+        <ul class="log-list" id="actualList" aria-label="今日实际流水"></ul>
+        <p class="column__empty" id="actualEmpty">记录今天已经发生的。</p>
       </article>
     </section>
   </div>
@@ -3087,8 +3461,8 @@
 
       <header class="calendar-head">
         <div>
-          <p class="eyebrow">只读回顾</p>
-          <h2 id="calendarDialogTitle">日历</h2>
+          <p class="eyebrow">按日期查看</p>
+          <h2 id="calendarDialogTitle">计划日历</h2>
         </div>
         <button class="icon-button" id="closeCalendar" type="button" aria-label="关闭日历">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
@@ -3126,8 +3500,7 @@
         </div>
         <div class="calendar-grid" id="calendarGrid" role="group" aria-label="选择日期"></div>
         <div class="calendar-legend" aria-hidden="true">
-          <span><i class="legend-dot--plan"></i>计划</span>
-          <span><i class="legend-dot--actual"></i>实际</span>
+          <span><i class="legend-dot--plan"></i>有计划</span>
         </div>
       </div>
 
@@ -3137,32 +3510,27 @@
             <p id="selectedDateLabel">11月11日 · 周三</p>
             <span class="day-detail__tag" id="selectedDateTag" hidden>今天</span>
           </div>
-          <span class="day-detail__summary" id="selectedSummary">计划 0/0 · 实际 0/0</span>
         </header>
 
-        <div class="day-detail__columns">
-          <div class="day-detail__col">
-            <div class="day-detail__colhead">
-              <span class="day-detail__dot day-detail__dot--plan" aria-hidden="true"></span>
-              <h3>计划</h3>
-              <span class="day-detail__ratio" id="selectedPlanRatio">0/0</span>
-            </div>
-            <ul class="read-list" id="selectedPlanList" aria-label="当日计划"></ul>
-            <p class="read-empty" id="selectedPlanEmpty">没有计划</p>
-          </div>
-
-          <div class="day-detail__divider" aria-hidden="true"></div>
-
-          <div class="day-detail__col">
-            <div class="day-detail__colhead">
-              <span class="day-detail__dot day-detail__dot--actual" aria-hidden="true"></span>
-              <h3>实际</h3>
-              <span class="day-detail__ratio" id="selectedActualRatio">0/0</span>
-            </div>
-            <ul class="read-list" id="selectedActualList" aria-label="当日实际"></ul>
-            <p class="read-empty" id="selectedActualEmpty">没有实际记录</p>
-          </div>
+        <div class="calendar-plan-head">
+          <span class="day-detail__dot day-detail__dot--plan" aria-hidden="true"></span>
+          <h3>计划</h3>
+          <span class="day-detail__ratio" id="selectedPlanRatio">0/0</span>
         </div>
+
+        <ul class="calendar-plan-list" id="selectedPlanList" aria-label="当日计划"></ul>
+        <p class="calendar-plan-empty" id="selectedPlanEmpty">这天还没有计划，可以直接添加。</p>
+
+        <form class="calendar-plan-add" id="calendarPlanForm" novalidate>
+          <label class="sr-only" for="calendarPlanInput">为所选日期添加计划</label>
+          <input id="calendarPlanInput" type="text" placeholder="为这天添加计划" maxlength="120" autocomplete="off" enterkeyhint="done">
+          <button type="submit" aria-label="添加计划到所选日期">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+          </button>
+        </form>
+        <p class="calendar-plan-hint" id="futurePlanHint" hidden>还未到这一天，暂时不能勾选完成。</p>
       </section>
     </div>
   </dialog>
@@ -3214,6 +3582,7 @@
         cdSeconds: document.getElementById('cdSeconds'),
         planForm: document.getElementById('planForm'),
         planInput: document.getElementById('planInput'),
+        planDateInput: document.getElementById('planDateInput'),
         planList: document.getElementById('planList'),
         planEmpty: document.getElementById('planEmpty'),
         planRatio: document.getElementById('planRatio'),
@@ -3221,7 +3590,7 @@
         actualInput: document.getElementById('actualInput'),
         actualList: document.getElementById('actualList'),
         actualEmpty: document.getElementById('actualEmpty'),
-        actualRatio: document.getElementById('actualRatio'),
+        actualCount: document.getElementById('actualCount'),
         summaryFraction: document.getElementById('summaryFraction'),
         summaryPercent: document.getElementById('summaryPercent'),
         summaryProgress: document.getElementById('summaryProgress'),
@@ -3245,13 +3614,12 @@
         calendarGrid: document.getElementById('calendarGrid'),
         selectedDateLabel: document.getElementById('selectedDateLabel'),
         selectedDateTag: document.getElementById('selectedDateTag'),
-        selectedSummary: document.getElementById('selectedSummary'),
         selectedPlanList: document.getElementById('selectedPlanList'),
         selectedPlanEmpty: document.getElementById('selectedPlanEmpty'),
         selectedPlanRatio: document.getElementById('selectedPlanRatio'),
-        selectedActualList: document.getElementById('selectedActualList'),
-        selectedActualEmpty: document.getElementById('selectedActualEmpty'),
-        selectedActualRatio: document.getElementById('selectedActualRatio'),
+        calendarPlanForm: document.getElementById('calendarPlanForm'),
+        calendarPlanInput: document.getElementById('calendarPlanInput'),
+        futurePlanHint: document.getElementById('futurePlanHint'),
         todayPage: document.getElementById('todayPage'),
         summaryFooter: document.getElementById('summaryFooter'),
         openReminders: document.getElementById('openReminders'),
@@ -3377,7 +3745,7 @@
         }
       }
 
-      function normaliseTasks(value) {
+      function normalisePlans(value, key) {
         if (!Array.isArray(value)) {
           return [];
         }
@@ -3386,11 +3754,38 @@
             return task && typeof task.text === 'string' && task.text.trim();
           })
           .map(function (task) {
+            var createdAt = Number(task.createdAt) || Date.now();
+            var done = Boolean(task.done);
             return {
               id: typeof task.id === 'string' && task.id ? task.id : makeId(),
               text: task.text.trim().slice(0, 120),
-              done: Boolean(task.done),
-              createdAt: Number(task.createdAt) || Date.now()
+              date: key,
+              done: done,
+              createdAt: createdAt,
+              updatedAt: Number(task.updatedAt) || createdAt,
+              completedAt: done
+                ? (Number(task.completedAt) || Number(task.updatedAt) || createdAt)
+                : null
+            };
+          });
+      }
+
+      function normaliseLogs(value, key) {
+        if (!Array.isArray(value)) {
+          return [];
+        }
+        return value
+          .filter(function (log) {
+            return log && typeof log.text === 'string' && log.text.trim();
+          })
+          .map(function (log, index) {
+            var timestamp = Number(log.timestamp) || Number(log.createdAt) || (Date.now() - index * 1000);
+            return {
+              id: typeof log.id === 'string' && log.id ? log.id : makeId(),
+              text: log.text.trim().slice(0, 120),
+              date: key,
+              timestamp: timestamp,
+              createdAt: Number(log.createdAt) || timestamp
             };
           });
       }
@@ -3403,27 +3798,31 @@
         try {
           var parsed = JSON.parse(raw);
           return {
-            plan: normaliseTasks(parsed && parsed.plan),
-            actual: normaliseTasks(parsed && parsed.actual)
+            plan: normalisePlans(parsed && parsed.plan, key),
+            actual: normaliseLogs(parsed && parsed.actual, key)
           };
         } catch (error) {
           return { plan: [], actual: [] };
         }
       }
 
+      function saveDayRecord(key, day) {
+        writeStorage(
+          DAY_PREFIX + key,
+          JSON.stringify({
+            date: key,
+            plan: day.plan,
+            actual: day.actual,
+            updatedAt: Date.now()
+          })
+        );
+      }
+
       function saveDay() {
         if (!state.dateKey) {
           return;
         }
-        writeStorage(
-          DAY_PREFIX + state.dateKey,
-          JSON.stringify({
-            date: state.dateKey,
-            plan: state.day.plan,
-            actual: state.day.actual,
-            updatedAt: Date.now()
-          })
-        );
+        saveDayRecord(state.dateKey, state.day);
       }
 
       function readAllStoredDays() {
@@ -3445,8 +3844,8 @@
               continue;
             }
             days[key] = {
-              plan: normaliseTasks(parsed && parsed.plan),
-              actual: normaliseTasks(parsed && parsed.actual),
+              plan: normalisePlans(parsed && parsed.plan, key),
+              actual: normaliseLogs(parsed && parsed.actual, key),
               updatedAt: Number(parsed && parsed.updatedAt) || null
             };
           }
@@ -3678,34 +4077,176 @@
         return '';
       }
 
-      function renderReadList(kind, tasks) {
-        var list = kind === 'plan' ? els.selectedPlanList : els.selectedActualList;
-        var empty = kind === 'plan' ? els.selectedPlanEmpty : els.selectedActualEmpty;
+      function formatLogTime(timestamp) {
+        var date = new Date(timestamp);
+        return pad(date.getHours()) + ':' + pad(date.getMinutes());
+      }
+
+      function formatFullLogTime(timestamp) {
+        var date = new Date(timestamp);
+        return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate() +
+          '日 ' + pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
+      }
+
+      function sortLogsNewestFirst(logs) {
+        return logs.slice().sort(function (first, second) {
+          return second.timestamp - first.timestamp;
+        });
+      }
+
+      function getTodayPlans() {
+        return state.day.plan.filter(function (plan) {
+          return plan.date === state.dateKey;
+        });
+      }
+
+      function getCalendarDay(key) {
+        if (key === state.dateKey) {
+          calendarState.days[key] = state.day;
+          return state.day;
+        }
+        if (!calendarState.days[key]) {
+          calendarState.days[key] = loadDay(key);
+        }
+        return calendarState.days[key];
+      }
+
+      function persistPlanForDate(key, day) {
+        calendarState.days[key] = day;
+        if (key === state.dateKey) {
+          state.day = day;
+          saveDay();
+          renderTodayPlans();
+        } else {
+          saveDayRecord(key, day);
+        }
+      }
+
+      function addPlanForDate(key, text) {
+        var value = text.trim().slice(0, 120);
+        if (!value) {
+          return null;
+        }
+        var now = Date.now();
+        var plan = {
+          id: makeId(),
+          text: value,
+          date: key,
+          done: false,
+          createdAt: now,
+          updatedAt: now,
+          completedAt: null
+        };
+        var day;
+        if (key === state.dateKey) {
+          day = state.day;
+        } else {
+          day = loadDay(key);
+        }
+        day.plan.unshift(plan);
+        persistPlanForDate(key, day);
+        return plan;
+      }
+
+      function calendarDateTag(date) {
+        var today = new Date();
+        var todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        var targetMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        var difference = Math.round((targetMidnight - todayMidnight) / 86400000);
+
+        if (difference === 0) {
+          return '今天';
+        }
+        if (difference === -1) {
+          return '昨天';
+        }
+        if (difference === 1) {
+          return '明天';
+        }
+        if (difference > 1) {
+          return '还有 ' + difference + ' 天';
+        }
+        if (date.getFullYear() !== today.getFullYear()) {
+          return date.getFullYear() + '年';
+        }
+        return '';
+      }
+
+      function updateCalendarPlanCounts(plans) {
+        var done = getDoneCount(plans);
+        els.selectedPlanRatio.textContent = done + '/' + plans.length;
+      }
+
+      function renderCalendarPlans(day, key, locked) {
         var fragment = document.createDocumentFragment();
 
-        tasks.forEach(function (task) {
+        day.plan.forEach(function (plan) {
           var item = document.createElement('li');
-          item.className = 'read-item read-item--' + kind + (task.done ? ' is-done' : '');
+          item.className = 'calendar-plan-item' + (plan.done ? ' is-done' : '');
 
-          var mark = document.createElement('span');
-          mark.className = 'read-item__mark';
-          mark.setAttribute('aria-hidden', 'true');
-          mark.innerHTML = CHECK_ICON;
+          var label = document.createElement('label');
+          label.className = 'calendar-plan-label' + (locked ? ' is-locked' : '');
 
-          var status = document.createElement('span');
-          status.className = 'sr-only';
-          status.textContent = task.done ? '已完成：' : '未完成：';
+          var checkbox = document.createElement('input');
+          checkbox.className = 'task__check';
+          checkbox.type = 'checkbox';
+          checkbox.checked = plan.done;
+          checkbox.disabled = locked;
+          checkbox.setAttribute(
+            'aria-label',
+            locked
+              ? '未到日期，暂不能完成：' + plan.text
+              : (plan.done ? '取消完成：' : '完成：') + plan.text
+          );
+          checkbox.addEventListener('change', function () {
+            if (locked) {
+              return;
+            }
+            plan.done = checkbox.checked;
+            plan.completedAt = plan.done ? Date.now() : null;
+            plan.updatedAt = Date.now();
+            item.classList.toggle('is-done', plan.done);
+            checkbox.setAttribute(
+              'aria-label',
+              (plan.done ? '取消完成：' : '完成：') + plan.text
+            );
+            persistPlanForDate(key, day);
+            updateCalendarPlanCounts(day.plan);
+          });
+
+          var box = document.createElement('span');
+          box.className = 'task__box';
+          box.setAttribute('aria-hidden', 'true');
+          box.innerHTML = CHECK_ICON;
 
           var text = document.createElement('span');
-          text.className = 'read-item__text';
-          text.textContent = task.text;
+          text.className = 'calendar-plan-text';
+          text.textContent = plan.text;
 
-          item.append(mark, status, text);
+          var remove = document.createElement('button');
+          remove.className = 'calendar-plan-remove';
+          remove.type = 'button';
+          remove.setAttribute('aria-label', '删除计划：' + plan.text);
+          remove.title = '删除';
+          remove.innerHTML = REMOVE_ICON;
+          remove.addEventListener('click', function () {
+            var index = day.plan.indexOf(plan);
+            if (index !== -1) {
+              day.plan.splice(index, 1);
+            }
+            persistPlanForDate(key, day);
+            renderCalendar();
+            renderSelectedDay();
+            showToast('已删除计划');
+          });
+
+          label.append(checkbox, box, text);
+          item.append(label, remove);
           fragment.appendChild(item);
         });
 
-        list.replaceChildren(fragment);
-        empty.hidden = tasks.length > 0;
+        els.selectedPlanList.replaceChildren(fragment);
+        els.selectedPlanEmpty.hidden = day.plan.length > 0;
       }
 
       function renderSelectedDay() {
@@ -3713,31 +4254,27 @@
           return;
         }
 
-        var result = calendarState.days[calendarState.selectedKey] || { plan: [], actual: [] };
-        var date = parseDayKey(calendarState.selectedKey);
-        var planDone = getDoneCount(result.plan);
-        var actualDone = getDoneCount(result.actual);
-        var tag = relativeDayLabel(date);
+        var key = calendarState.selectedKey;
+        var day = getCalendarDay(key);
+        var date = parseDayKey(key);
+        var tag = calendarDateTag(date);
+        var todayKey = dateKey(new Date());
+        var locked = key > todayKey;
 
         els.selectedDateLabel.textContent =
           (date.getMonth() + 1) + '月' + date.getDate() + '日 · ' + getWeekday(date);
         els.selectedDateTag.textContent = tag;
         els.selectedDateTag.hidden = !tag;
-        els.selectedSummary.textContent =
-          '计划 ' + planDone + '/' + result.plan.length +
-          ' · 实际 ' + actualDone + '/' + result.actual.length;
-        els.selectedPlanRatio.textContent = planDone + '/' + result.plan.length;
-        els.selectedActualRatio.textContent = actualDone + '/' + result.actual.length;
+        els.futurePlanHint.hidden = !locked;
 
-        renderReadList('plan', result.plan);
-        renderReadList('actual', result.actual);
+        updateCalendarPlanCounts(day.plan);
+        renderCalendarPlans(day, key, locked);
       }
 
       function createCalendarDayButton(date, todayKey) {
         var key = dateKey(date);
         var record = calendarState.days[key];
         var hasPlan = Boolean(record && record.plan.length);
-        var hasActual = Boolean(record && record.actual.length);
         var isToday = key === todayKey;
         var isSelected = key === calendarState.selectedKey;
 
@@ -3761,29 +4298,19 @@
         if (hasPlan) {
           label += '，有计划';
         }
-        if (hasActual) {
-          label += '，有实际记录';
-        }
         button.setAttribute('aria-label', label);
 
         var number = document.createElement('span');
         number.textContent = String(date.getDate());
         button.appendChild(number);
 
-        if (hasPlan || hasActual) {
+        if (hasPlan) {
           var dots = document.createElement('span');
           dots.className = 'calendar-day__dots';
           dots.setAttribute('aria-hidden', 'true');
-          if (hasPlan) {
-            var planDot = document.createElement('i');
-            planDot.className = 'calendar-day__dot';
-            dots.appendChild(planDot);
-          }
-          if (hasActual) {
-            var actualDot = document.createElement('i');
-            actualDot.className = 'calendar-day__dot calendar-day__dot--actual';
-            dots.appendChild(actualDot);
-          }
+          var planDot = document.createElement('i');
+          planDot.className = 'calendar-day__dot';
+          dots.appendChild(planDot);
           button.appendChild(dots);
         }
 
@@ -3826,6 +4353,7 @@
           return;
         }
         calendarState.selectedKey = key;
+        els.calendarPlanInput.value = '';
         renderCalendar();
         renderSelectedDay();
 
@@ -3848,6 +4376,7 @@
           target.getMonth() === today.getMonth();
         var day = isCurrentMonth ? today.getDate() : 1;
         calendarState.selectedKey = dateKey(new Date(calendarState.year, calendarState.month, day));
+        els.calendarPlanInput.value = '';
 
         renderCalendar();
         renderSelectedDay();
@@ -3860,6 +4389,7 @@
         calendarState.year = today.getFullYear();
         calendarState.month = today.getMonth();
         calendarState.selectedKey = dateKey(today);
+        els.calendarPlanInput.value = '';
 
         renderCalendar();
         renderSelectedDay();
@@ -3895,12 +4425,26 @@
         }
       }
 
-      function exportTask(task) {
+      function exportPlan(plan) {
         return {
-          id: task.id,
-          text: task.text,
-          done: Boolean(task.done),
-          createdAt: task.createdAt
+          id: plan.id,
+          text: plan.text,
+          date: plan.date,
+          done: Boolean(plan.done),
+          createdAt: plan.createdAt,
+          updatedAt: plan.updatedAt,
+          completedAt: plan.completedAt || null
+        };
+      }
+
+      function exportLog(log) {
+        return {
+          id: log.id,
+          text: log.text,
+          date: log.date,
+          timestamp: log.timestamp,
+          timestampISO: new Date(log.timestamp).toISOString(),
+          createdAt: log.createdAt
         };
       }
 
@@ -3908,13 +4452,22 @@
         try {
           var days = mergeCurrentDayInto(readAllStoredDays());
           var keys = Object.keys(days).sort();
+          var allPlans = [];
+          var allLogs = [];
           var exportedDays = keys.map(function (key) {
             var day = days[key];
+            var plans = day.plan.map(exportPlan);
+            var logs = day.actual
+              .slice()
+              .sort(function (first, second) { return first.timestamp - second.timestamp; })
+              .map(exportLog);
+            allPlans = allPlans.concat(plans);
+            allLogs = allLogs.concat(logs);
             return {
               date: key,
               updatedAt: day.updatedAt || null,
-              plan: day.plan.map(exportTask),
-              actual: day.actual.map(exportTask)
+              plans: plans,
+              actualLogs: logs
             };
           });
           var event = state.homeEvent
@@ -3943,10 +4496,12 @@
           });
           var payload = {
             app: '一日',
-            formatVersion: 2,
+            formatVersion: 3,
             exportedAt: new Date().toISOString(),
             timezone: getTimeZoneName(),
             event: event,
+            plans: allPlans,
+            actualLogs: allLogs,
             days: exportedDays,
             reminders: exportedReminders
           };
@@ -3968,7 +4523,7 @@
           }, 1200);
 
           var filledDays = exportedDays.filter(function (day) {
-            return day.plan.length || day.actual.length;
+            return day.plans.length || day.actualLogs.length;
           }).length;
           var parts = [];
           if (filledDays) {
@@ -4417,21 +4972,15 @@
         }
       }
 
-      function updateEmptyState(kind) {
-        var list = state.day[kind];
-        var empty = kind === 'plan' ? els.planEmpty : els.actualEmpty;
-        empty.hidden = list.length > 0;
-      }
-
       function updateCounts() {
-        var planTotal = state.day.plan.length;
-        var planDone = state.day.plan.filter(function (task) { return task.done; }).length;
-        var actualTotal = state.day.actual.length;
-        var actualDone = state.day.actual.filter(function (task) { return task.done; }).length;
+        var plans = getTodayPlans();
+        var planTotal = plans.length;
+        var planDone = plans.filter(function (plan) { return plan.done; }).length;
+        var actualTotal = getTodayLogs().length;
         var percent = planTotal ? Math.round((planDone / planTotal) * 100) : 0;
 
         els.planRatio.textContent = planDone + '/' + planTotal;
-        els.actualRatio.textContent = actualDone + '/' + actualTotal;
+        els.actualCount.textContent = actualTotal + ' 条';
         els.summaryFraction.textContent = planDone + '/' + planTotal;
         els.summaryPercent.textContent = percent + '%';
         els.summaryBar.style.width = percent + '%';
@@ -4443,101 +4992,138 @@
         );
       }
 
-      function renderTask(kind, task) {
-        var li = document.createElement('li');
-        li.className = 'task' + (task.done ? ' is-done' : '');
-        li.dataset.id = task.id;
-
-        var label = document.createElement('label');
-        label.className = 'task__label';
-
-        var checkbox = document.createElement('input');
-        checkbox.className = 'task__check';
-        checkbox.type = 'checkbox';
-        checkbox.checked = task.done;
-        checkbox.setAttribute('aria-label', (task.done ? '取消完成：' : '完成：') + task.text);
-
-        var box = document.createElement('span');
-        box.className = 'task__box';
-        box.setAttribute('aria-hidden', 'true');
-        box.innerHTML = CHECK_ICON;
-
-        var text = document.createElement('span');
-        text.className = 'task__text';
-        text.textContent = task.text;
-
-        var remove = document.createElement('button');
-        remove.className = 'task__remove';
-        remove.type = 'button';
-        remove.setAttribute('aria-label', '删除：' + task.text);
-        remove.title = '删除';
-        remove.innerHTML = REMOVE_ICON;
-
-        checkbox.addEventListener('change', function () {
-          task.done = checkbox.checked;
-          li.classList.toggle('is-done', task.done);
-          checkbox.setAttribute('aria-label', (task.done ? '取消完成：' : '完成：') + task.text);
-          saveDay();
-          updateCounts();
+      function getTodayLogs() {
+        return state.day.actual.filter(function (log) {
+          return log.date === state.dateKey;
         });
-
-        remove.addEventListener('click', function () {
-          var index = state.day[kind].indexOf(task);
-          if (index !== -1) {
-            state.day[kind].splice(index, 1);
-          }
-          saveDay();
-          li.remove();
-          updateEmptyState(kind);
-          updateCounts();
-        });
-
-        label.append(checkbox, box, text);
-        li.append(label, remove);
-        return li;
       }
 
-      function renderTasks(kind) {
-        var list = kind === 'plan' ? els.planList : els.actualList;
+      function renderTodayPlans() {
+        var plans = getTodayPlans();
         var fragment = document.createDocumentFragment();
-        state.day[kind].forEach(function (task) {
-          fragment.appendChild(renderTask(kind, task));
+
+        plans.forEach(function (plan) {
+          var li = document.createElement('li');
+          li.className = 'task' + (plan.done ? ' is-done' : '');
+          li.dataset.id = plan.id;
+
+          var label = document.createElement('label');
+          label.className = 'task__label';
+
+          var checkbox = document.createElement('input');
+          checkbox.className = 'task__check';
+          checkbox.type = 'checkbox';
+          checkbox.checked = plan.done;
+          checkbox.setAttribute('aria-label', (plan.done ? '取消完成：' : '完成：') + plan.text);
+
+          var box = document.createElement('span');
+          box.className = 'task__box';
+          box.setAttribute('aria-hidden', 'true');
+          box.innerHTML = CHECK_ICON;
+
+          var text = document.createElement('span');
+          text.className = 'task__text';
+          text.textContent = plan.text;
+
+          var remove = document.createElement('button');
+          remove.className = 'task__remove';
+          remove.type = 'button';
+          remove.setAttribute('aria-label', '删除计划：' + plan.text);
+          remove.title = '删除';
+          remove.innerHTML = REMOVE_ICON;
+
+          checkbox.addEventListener('change', function () {
+            plan.done = checkbox.checked;
+            plan.completedAt = plan.done ? Date.now() : null;
+            plan.updatedAt = Date.now();
+            li.classList.toggle('is-done', plan.done);
+            checkbox.setAttribute('aria-label', (plan.done ? '取消完成：' : '完成：') + plan.text);
+            saveDay();
+            updateCounts();
+          });
+
+          remove.addEventListener('click', function () {
+            var index = state.day.plan.indexOf(plan);
+            if (index !== -1) {
+              state.day.plan.splice(index, 1);
+            }
+            saveDay();
+            li.remove();
+            els.planEmpty.hidden = getTodayPlans().length > 0;
+            updateCounts();
+          });
+
+          label.append(checkbox, box, text);
+          li.append(label, remove);
+          fragment.appendChild(li);
         });
-        list.replaceChildren(fragment);
-        updateEmptyState(kind);
+
+        els.planList.replaceChildren(fragment);
+        els.planEmpty.hidden = plans.length > 0;
         updateCounts();
       }
 
-      function addTask(kind, text) {
+      function renderTodayLogs() {
+        var logs = sortLogsNewestFirst(getTodayLogs());
+        var fragment = document.createDocumentFragment();
+
+        logs.forEach(function (log) {
+          var li = document.createElement('li');
+          li.className = 'log-entry';
+          li.dataset.id = log.id;
+
+          var time = document.createElement('time');
+          time.className = 'log-entry__time';
+          time.dateTime = new Date(log.timestamp).toISOString();
+          time.title = formatFullLogTime(log.timestamp);
+          time.textContent = formatLogTime(log.timestamp);
+
+          var text = document.createElement('span');
+          text.className = 'log-entry__text';
+          text.textContent = log.text;
+
+          var remove = document.createElement('button');
+          remove.className = 'log-entry__remove';
+          remove.type = 'button';
+          remove.setAttribute('aria-label', '删除实际记录：' + log.text);
+          remove.title = '删除';
+          remove.innerHTML = REMOVE_ICON;
+          remove.addEventListener('click', function () {
+            var index = state.day.actual.indexOf(log);
+            if (index !== -1) {
+              state.day.actual.splice(index, 1);
+            }
+            saveDay();
+            li.remove();
+            els.actualEmpty.hidden = getTodayLogs().length > 0;
+            updateCounts();
+          });
+
+          li.append(time, text, remove);
+          fragment.appendChild(li);
+        });
+
+        els.actualList.replaceChildren(fragment);
+        els.actualEmpty.hidden = logs.length > 0;
+        updateCounts();
+      }
+
+      function addLog(text) {
         var value = text.trim().slice(0, 120);
         if (!value) {
           return false;
         }
-        state.day[kind].unshift({
+        var now = Date.now();
+        state.day.actual.push({
           id: makeId(),
           text: value,
-          done: false,
-          createdAt: Date.now()
+          date: state.dateKey,
+          timestamp: now,
+          createdAt: now
         });
         saveDay();
-        renderTasks(kind);
-        updateCounts();
-
-        var list = kind === 'plan' ? els.planList : els.actualList;
-        var firstTask = list.firstElementChild;
-        if (firstTask) {
-          firstTask.classList.add('task--new');
-        }
+        renderTodayLogs();
         return true;
-      }
-
-      function handleAdd(kind, input) {
-        if (addTask(kind, input.value)) {
-          input.value = '';
-          input.focus({ preventScroll: true });
-        } else {
-          input.focus({ preventScroll: true });
-        }
       }
 
       function refreshDay(now) {
@@ -4549,9 +5135,17 @@
         state.day = loadDay(key);
         els.planInput.value = '';
         els.actualInput.value = '';
-        renderTasks('plan');
-        renderTasks('actual');
+        els.planDateInput.min = key;
+        els.planDateInput.value = key;
+        renderTodayPlans();
+        renderTodayLogs();
         refreshReminderSurfaces();
+
+        if (els.calendarDialog.open) {
+          calendarState.days = mergeCurrentDayInto(readAllStoredDays());
+          renderCalendar();
+          renderSelectedDay();
+        }
       }
 
       function tick() {
@@ -4737,8 +5331,24 @@
         calendarState.year = today.getFullYear();
         calendarState.month = today.getMonth();
         calendarState.selectedKey = dateKey(today);
+        els.calendarPlanInput.value = '';
         renderCalendar();
         renderSelectedDay();
+      });
+
+      els.calendarPlanForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var value = els.calendarPlanInput.value.trim();
+        if (!value) {
+          els.calendarPlanInput.focus({ preventScroll: true });
+          return;
+        }
+        addPlanForDate(calendarState.selectedKey, value);
+        els.calendarPlanInput.value = '';
+        renderCalendar();
+        renderSelectedDay();
+        els.calendarPlanInput.focus({ preventScroll: true });
+        showToast('已添加计划');
       });
       els.calendarDialog.addEventListener('close', function () {
         document.body.classList.remove('dialog-open');
@@ -4812,12 +5422,41 @@
 
       els.planForm.addEventListener('submit', function (event) {
         event.preventDefault();
-        handleAdd('plan', els.planInput);
+        var value = els.planInput.value.trim();
+        var date = els.planDateInput.value;
+
+        if (!value) {
+          els.planInput.focus({ preventScroll: true });
+          return;
+        }
+        if (!date || !isValidDayKey(date)) {
+          showToast('选择一个计划日期');
+          els.planDateInput.focus({ preventScroll: true });
+          return;
+        }
+        if (date < state.dateKey) {
+          showToast('计划日期不能早于今天');
+          els.planDateInput.focus({ preventScroll: true });
+          return;
+        }
+
+        addPlanForDate(date, value);
+        els.planInput.value = '';
+        els.planDateInput.value = state.dateKey;
+        els.planInput.focus({ preventScroll: true });
+
+        if (date !== state.dateKey) {
+          var target = parseDayKey(date);
+          showToast('已添加到 ' + (target.getMonth() + 1) + '月' + target.getDate() + '日');
+        }
       });
 
       els.actualForm.addEventListener('submit', function (event) {
         event.preventDefault();
-        handleAdd('actual', els.actualInput);
+        if (addLog(els.actualInput.value)) {
+          els.actualInput.value = '';
+        }
+        els.actualInput.focus({ preventScroll: true });
       });
 
       window.addEventListener('storage', function (event) {
@@ -4834,8 +5473,8 @@
         }
         if (event.key === null || event.key === DAY_PREFIX + state.dateKey) {
           state.day = loadDay(state.dateKey);
-          renderTasks('plan');
-          renderTasks('actual');
+          renderTodayPlans();
+          renderTodayLogs();
         }
         if (els.calendarDialog.open) {
           calendarState.days = mergeCurrentDayInto(readAllStoredDays());
@@ -4855,13 +5494,15 @@
       state.day = loadDay(state.dateKey);
       state.reminders = loadReminders();
       syncCountdownReminder();
+      els.planDateInput.min = state.dateKey;
+      els.planDateInput.value = state.dateKey;
 
       var now = new Date();
       updateClock(now);
       syncTheme(now);
       renderEvent();
-      renderTasks('plan');
-      renderTasks('actual');
+      renderTodayPlans();
+      renderTodayLogs();
       refreshReminderSurfaces();
 
       if (storageBroken) {
